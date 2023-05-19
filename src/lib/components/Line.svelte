@@ -2,8 +2,7 @@
 	import { Layer, type Render } from 'svelte-canvas';
 	import { quartInOut } from 'svelte/easing';
 	import { tweened } from 'svelte/motion';
-
-	type Pos = { x: number; y: number };
+	import type { Pos } from '../../types';
 
 	export let startPoint: Pos;
 	export let endPoint: Pos;
