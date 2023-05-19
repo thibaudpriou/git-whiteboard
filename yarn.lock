@@ -1345,6 +1345,13 @@ supports-color@^7.1.0:
   dependencies:
     has-flag "^4.0.0"
 
+svelte-canvas@^0.9.3:
+  version "0.9.3"
+  resolved "https://registry.yarnpkg.com/svelte-canvas/-/svelte-canvas-0.9.3.tgz#df58d8aef97e06a93ee957e144db43c06e517a11"
+  integrity sha512-sGYivBdOjAbYSHtzzcwqXGu40Mgj1/GhTLLMH5tYyGdZo2XdJz07+AvapSxtSGIggJ2aDuStYBW6YvK5rLxW+Q==
+  dependencies:
+    svelte "^3.55.0"
+
 svelte-check@^3.0.1:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/svelte-check/-/svelte-check-3.3.2.tgz#11831428531cf7c61a91c38929eda11c37b7dcb1"
@@ -1384,7 +1391,7 @@ svelte-preprocess@^5.0.3:
     sorcery "^0.11.0"
     strip-indent "^3.0.0"
 
-svelte@^3.54.0:
+svelte@^3.54.0, svelte@^3.55.0:
   version "3.59.1"
   resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.59.1.tgz#3de3d56b9165748f32f3131589b8d183cabe7449"
   integrity sha512-pKj8fEBmqf6mq3/NfrB9SLtcJcUvjYSWyePlfCqN9gujLB25RitWK8PvFzlwim6hD/We35KbPlRteuA6rnPGcQ==
