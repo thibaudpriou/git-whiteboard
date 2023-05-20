@@ -1,7 +1,6 @@
 <script lang="ts">
 	import Commit from '$lib/components/Commit.svelte';
 	import Line from '$lib/components/Line.svelte';
-	import Staged from '$lib/components/Staged.svelte';
 	import { Canvas } from 'svelte-canvas';
 	import type { TCommit, Pos } from '../types';
 
@@ -24,18 +23,6 @@
 	 * - cherry-pick
 	 */
 
-	// TODO delete Staged interface
-	type Staged = {
-		id: string;
-		pos: Pos;
-	};
-
-	// TODO delete Mem interface
-	interface Mem {
-		staged: Staged[];
-	}
-
-
 	let innerHeight = 0,
 		innerWidth = 0;
 
@@ -50,11 +37,6 @@
 		grid2pos = getPositionFromGrid.bind(null, win, camera, gridSize);
 		pos2grid = getGridFromPosition.bind(null, win, camera, gridSize);
 	}
-
-	let memory: Mem;
-	$: memory = {
-		staged: []
-	};
 
 	let commitsIdsToLabel: TCommit['id'][] = [];
 	const displayLabelInputs = (id: TCommit['id'][]) => {
@@ -171,11 +153,6 @@
 			<!-- TODO rename component Line -> Link -->
 			<Line startPoint={grid2pos(parent.pos)} endPoint={grid2pos(commit.pos)} />
 		{/each}
-	{/each}
-
-	{#each memory.staged as staged}
-		<!-- TODO staged props: `pos` i.o. `x` & `y` -->
-		<Staged x={grid2pos(staged.pos).x} y={grid2pos(staged.pos).y} radius={gridSize / 4} />
 	{/each}
 </Canvas>
 
