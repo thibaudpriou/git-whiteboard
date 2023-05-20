@@ -2,9 +2,9 @@
 	import { Layer, type Render } from 'svelte-canvas';
 	import { tweened } from 'svelte/motion';
 	import { quartInOut } from 'svelte/easing';
+	import type { Pos } from '../../types';
 
-	export let x: number;
-	export let y: number;
+	export let pos: Pos;
 	export let animDuration = 500;
 	export let radius = 50;
 	export let selected = false
@@ -15,16 +15,16 @@
 			easing: quartInOut
 		});
 
-	let posX = tweenedPos(x);
-	let posY = tweenedPos(y);
+	let posX = tweenedPos(pos.x);
+	let posY = tweenedPos(pos.y);
 
-	const moveTo = (newX: number, newY: number) => {
-		posX.set(newX);
-		posY.set(newY);
+	const moveTo = (newPos: Pos) => {
+		posX.set(newPos.x);
+		posY.set(newPos.y);
 	};
 
 	$: {
-		moveTo(x, y);
+		moveTo(pos);
 	}
 
 	let render: Render;
@@ -42,4 +42,4 @@
 	};
 </script>
 
-<Layer {render} />
+<Layer {render} on:click/>
