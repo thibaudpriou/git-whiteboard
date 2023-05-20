@@ -12,15 +12,18 @@
 		pos: Pos;
 	};
 
+	type Staged = {
+		id: string;
+		pos: Pos;
+	};
+
 	interface Mem {
 		commits: Commit[];
 		lines: {
 			start: Commit;
 			end: Commit;
 		}[];
-		staged: {
-			[id: string]: Pos;
-		};
+		staged: Staged[];
 	}
 
 	const gridSize = 100;
@@ -42,8 +45,9 @@
 	$: pos2grid = (p: Pos): Pos => {
 		return {
 			x: Math.round((p.x - innerWidth / 2) / gridSize - cameraPos.x),
-			y: Math.round(- (p.y - innerHeight / 2) / gridSize + cameraPos.y)
-		}}
+			y: Math.round(-(p.y - innerHeight / 2) / gridSize + cameraPos.y)
+		};
+	};
 
 	let memory: Mem;
 
@@ -54,13 +58,8 @@
 	$: memory = {
 		commits: [rootCommit],
 		lines: [],
-		staged: {
-			[uuidv4()]: { x: -1, y: 0 }
-		}
+		staged: []
 	};
-
-	// TODO create WorkingDirChanges component
-	// TODO move elements with drag event
 
 	$: handleCanvasClick = (ev: MouseEvent) => {
 		if (mode === undefined) {
@@ -70,11 +69,11 @@
 		if (mode === 'c') {
 			// add a new commit
 			if (selectedCommits.length > 1) {
-				console.error('Cannot link to more than 1 commit'); // yet (it's a merge) ;)
+				console.log('Failure: Cannot link to more than 1 commit'); // yet (it's a merge) ;)
 				return;
 			}
 
-			const pos = pos2grid({ x: ev.clientX, y: ev.clientY })
+			const pos = pos2grid({ x: ev.clientX, y: ev.clientY });
 			const newCommit = { id: uuidv4(), pos };
 			memory.commits = [...memory.commits, newCommit];
 			if (selectedCommits[0]) {
@@ -94,6 +93,8 @@
 
 	let mode: string | undefined;
 	const handleKeydown = (ev: KeyboardEvent) => {
+		if (ev.repeat) return;
+
 		if (ev.key === 'c') mode = ev.key;
 	};
 	const handleKeyup = (ev: KeyboardEvent) => {
@@ -102,22 +103,31 @@
 
 	let selectedCommits: Commit[] = [];
 	const handleCommitClick = (clicked: Commit) => {
-		const foundIdx = selectedCommits.findIndex((c) => c.id === clicked.id);
-		if (foundIdx >= 0) {
-			// reset
-			selectedCommits.splice(foundIdx, 1);
-			selectedCommits = selectedCommits;
-			return;
-		}
+		// remove if exists
+		const newSelectedCommits = selectedCommits.filter((c) => c.id !== clicked.id);
 
-		selectedCommits = [...selectedCommits, clicked];
+		if (selectedCommits.length === newSelectedCommits.length) {
+			// none found
+			newSelectedCommits.push(clicked);
+		}
+		selectedCommits = newSelectedCommits;
 	};
+
+	// TODO create WorkingDirChanges component
+	// TODO move elements with drag event
 </script>
 
 <svelte:window bind:innerWidth bind:innerHeight />
 
 <svelte:document on:keydown={handleKeydown} on:keyup={handleKeyup} />
 
+{#if mode}
+	<p class="mode-info">
+		Mode: <span>
+			{mode === 'c' && 'commit'}
+		</span>
+	</p>
+{/if}
 <Canvas
 	width={innerWidth}
 	height={innerHeight}
@@ -137,7 +147,16 @@
 		/>
 	{/each}
 
-	{#each Object.entries(memory.staged) as [k, staged]}
-		<Staged x={grid2pos(staged).x} y={grid2pos(staged).y} radius={gridSize / 4} />
+	{#each memory.staged as staged}
+		<!-- TODO staged props: `pos` i.o. `x` & `y` -->
+		<Staged x={grid2pos(staged.pos).x} y={grid2pos(staged.pos).y} radius={gridSize / 4} />
 	{/each}
 </Canvas>
+
+<style>
+	.mode-info {
+		position: absolute;
+		top: 0;
+		left: 0;
+	}
+</style>
