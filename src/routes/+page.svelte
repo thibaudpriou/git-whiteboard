@@ -3,28 +3,19 @@
 	import Line from '$lib/components/Line.svelte';
 	import Staged from '$lib/components/Staged.svelte';
 	import { Canvas } from 'svelte-canvas';
-	import type { Pos } from '../types';
+	import type { TCommit, Pos } from '../types';
 
-	import { v4 as uuidv4 } from 'uuid';
 	import LabelInput from '$lib/components/LabelInput.svelte';
+	import { store } from '$lib/store';
 
-	type Commit = {
-		id: string;
-		pos: Pos;
-		name?: string;
-	};
-
+	// TODO delete Staged interface
 	type Staged = {
 		id: string;
 		pos: Pos;
 	};
 
+	// TODO delete Mem interface
 	interface Mem {
-		commits: Commit[];
-		lines: {
-			start: Commit;
-			end: Commit;
-		}[];
 		staged: Staged[];
 	}
 
@@ -51,50 +42,21 @@
 		};
 	};
 
-	// TODO create a store
-	const renameCommit = (commit: Commit, name: string) => {
-		const found = memory.commits.find((c) => c.id === commit.id);
-		if (!found) return;
-
-		found.name = name;
-		memory.commits = [...memory.commits];
-	};
-	const createCommit = (pos: Commit['pos'], head?: Commit) => {
-		const newCommit = { id: uuidv4(), pos };
-		memory.commits = [...memory.commits, newCommit];
-		if (head) {
-			memory.lines = [
-				...memory.lines,
-				{
-					start: head,
-					end: newCommit
-				}
-			];
-		}
-	};
-
 	let memory: Mem;
-	$: rootCommit = {
-		id: uuidv4(),
-		pos: { x: 0, y: 0 },
-		name: 'Root'
-	};
 	$: memory = {
-		commits: [rootCommit],
-		lines: [],
 		staged: []
 	};
 
-	let commitsToLabel: Commit[] = [];
-	const displayLabelInputs = (commits: Commit[]) => {
+	let commitsToLabel: TCommit[] = [];
+	const displayLabelInputs = (commits: TCommit[]) => {
 		commitsToLabel = commits;
 	};
 
-	const handleLabelSubmit = (commit: Commit, ev: CustomEvent<string>) => {
+	const handleLabelSubmit = (commit: TCommit, ev: CustomEvent<string>) => {
 		if (!commit) return;
 
-		renameCommit(commit, ev.detail);
-		const filterSubmitted = (c: Commit) => c.id !== commit.id;
+		store.renameCommit(commit, ev.detail);
+		const filterSubmitted = (c: TCommit) => c.id !== commit.id;
 		commitsToLabel = [...commitsToLabel.filter(filterSubmitted)];
 		selectedCommits = [...selectedCommits.filter(filterSubmitted)];
 	};
@@ -104,13 +66,16 @@
 
 		if (editMode === 'c') {
 			// add a new commit
-			if (selectedCommits.length > 1) {
-				console.log('Failure: Cannot link to more than 1 commit'); // yet (it's a merge) ;)
+			const parent = selectedCommits.at(0)
+			if (!parent) {
+				console.log('Failure: cannot create commit w/o parent');
 				return;
 			}
 
-			const pos = pos2grid({ x: ev.clientX, y: ev.clientY });
-			createCommit(pos, selectedCommits.at(0));
+			const newCommit = {
+				pos: pos2grid({ x: ev.clientX, y: ev.clientY })
+			};
+			store.addCommit(newCommit, parent);
 
 			selectedCommits = [];
 			return;
@@ -142,8 +107,8 @@
 		}
 	};
 
-	let selectedCommits: Commit[] = [];
-	const handleCommitClick = (clicked: Commit) => {
+	let selectedCommits: TCommit[] = [];
+	const handleCommitClick = (clicked: TCommit) => {
 		// remove if exists
 		const newSelectedCommits = selectedCommits.filter((c) => c.id !== clicked.id);
 
@@ -177,11 +142,12 @@
 	on:click={editMode !== undefined ? handleCanvasClick : undefined}
 	layerEvents={true}
 >
-	{#each Object.entries(memory.lines) as [k, line]}
-		<Line startPoint={grid2pos(line.start.pos)} endPoint={grid2pos(line.end.pos)} />
+	{#each $store.links as link}
+		<!-- TODO rename component Line -> Link -->
+		<Line startPoint={grid2pos(link.start.pos)} endPoint={grid2pos(link.end.pos)} />
 	{/each}
 
-	{#each memory.commits as commit}
+	{#each $store.commits as commit}
 		<Commit
 			pos={grid2pos(commit.pos)}
 			label={commit.name}
