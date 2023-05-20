@@ -8,6 +8,15 @@
 	import LabelInput from '$lib/components/LabelInput.svelte';
 	import { store } from '$lib/store';
 
+	/**
+	 * TODOLIST
+	 * - create WorkingDirChanges component
+	 * - move elements with drag event
+	 * - merge action
+	 * - rebase action
+	 * - cherry-pick
+	 */
+
 	// TODO delete Staged interface
 	type Staged = {
 		id: string;
@@ -66,7 +75,7 @@
 
 		if (editMode === 'c') {
 			// add a new commit
-			const parent = selectedCommits.at(0)
+			const parent = selectedCommits.at(0);
 			if (!parent) {
 				console.log('Failure: cannot create commit w/o parent');
 				return;
@@ -75,7 +84,7 @@
 			const newCommit = {
 				pos: pos2grid({ x: ev.clientX, y: ev.clientY })
 			};
-			store.addCommit(newCommit, parent);
+			store.addCommit(newCommit, [parent.id]);
 
 			selectedCommits = [];
 			return;
@@ -119,8 +128,16 @@
 		selectedCommits = newSelectedCommits;
 	};
 
-	// TODO create WorkingDirChanges component
-	// TODO move elements with drag event
+	$: commits = $store.commits.map((c) => ({
+		...c,
+		parentCommits:
+			c.parents?.map((pid) => {
+				const parentCommit = $store.commits.find((c2) => c2.id === pid);
+				if (!parentCommit) throw new Error('parent not found');
+
+				return parentCommit;
+			}) ?? []
+	}));
 </script>
 
 <svelte:window bind:innerWidth bind:innerHeight />
@@ -142,12 +159,7 @@
 	on:click={editMode !== undefined ? handleCanvasClick : undefined}
 	layerEvents={true}
 >
-	{#each $store.links as link}
-		<!-- TODO rename component Line -> Link -->
-		<Line startPoint={grid2pos(link.start.pos)} endPoint={grid2pos(link.end.pos)} />
-	{/each}
-
-	{#each $store.commits as commit}
+	{#each commits as commit}
 		<Commit
 			pos={grid2pos(commit.pos)}
 			label={commit.name}
@@ -155,6 +167,11 @@
 			on:click={() => handleCommitClick(commit)}
 			selected={selectedCommits.some((c) => c.id === commit.id)}
 		/>
+
+		{#each commit.parentCommits as parent}
+			<!-- TODO rename component Line -> Link -->
+			<Line startPoint={grid2pos(parent.pos)} endPoint={grid2pos(commit.pos)} />
+		{/each}
 	{/each}
 
 	{#each memory.staged as staged}
