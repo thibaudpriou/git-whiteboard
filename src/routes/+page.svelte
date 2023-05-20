@@ -56,18 +56,18 @@
 		staged: []
 	};
 
-	let commitsToLabel: TCommit[] = [];
-	const displayLabelInputs = (commits: TCommit[]) => {
-		commitsToLabel = commits;
+	let commitsIdsToLabel: TCommit['id'][] = [];
+	const displayLabelInputs = (id: TCommit['id'][]) => {
+		commitsIdsToLabel = id;
 	};
 
 	const handleLabelSubmit = (commit: TCommit, ev: CustomEvent<string>) => {
 		if (!commit) return;
 
 		store.renameCommit(commit, ev.detail);
-		const filterSubmitted = (c: TCommit) => c.id !== commit.id;
-		commitsToLabel = [...commitsToLabel.filter(filterSubmitted)];
-		selectedCommits = [...selectedCommits.filter(filterSubmitted)];
+		const filterSubmitted = (id: TCommit['id']) => id !== commit.id;
+		commitsIdsToLabel = [...commitsIdsToLabel.filter(filterSubmitted)];
+		selectedCommitsIds = [...selectedCommitsIds.filter(filterSubmitted)];
 	};
 
 	$: handleCanvasClick = (ev: MouseEvent) => {
@@ -75,8 +75,8 @@
 
 		if (editMode === 'c') {
 			// add a new commit
-			const parent = selectedCommits.at(0);
-			if (!parent) {
+			const parentId = selectedCommitsIds.at(0);
+			if (!parentId) {
 				console.log('Failure: cannot create commit w/o parent');
 				return;
 			}
@@ -84,14 +84,15 @@
 			const newCommit = {
 				pos: pos2grid({ x: ev.clientX, y: ev.clientY })
 			};
-			store.addCommit(newCommit, [parent.id]);
+			store.addCommit(newCommit, [parentId]);
 
-			selectedCommits = [];
+			const lastCommit = $store.commits.at(-1)!;
+			selectedCommitsIds = [lastCommit.id]; // to chain creation
 			return;
 		}
 
 		if (editMode === 'n') {
-			displayLabelInputs(selectedCommits);
+			displayLabelInputs(selectedCommitsIds);
 		}
 	};
 
@@ -100,8 +101,8 @@
 		if (ev.repeat) return;
 
 		if (ev.key === 'Escape') {
-			selectedCommits = [];
-			commitsToLabel = [];
+			selectedCommitsIds = [];
+			commitsIdsToLabel = [];
 			return;
 		}
 
@@ -112,20 +113,20 @@
 		editMode = undefined;
 
 		if (ev.key === 'n') {
-			displayLabelInputs(selectedCommits);
+			displayLabelInputs(selectedCommitsIds);
 		}
 	};
 
-	let selectedCommits: TCommit[] = [];
+	let selectedCommitsIds: TCommit['id'][] = [];
 	const handleCommitClick = (clicked: TCommit) => {
 		// remove if exists
-		const newSelectedCommits = selectedCommits.filter((c) => c.id !== clicked.id);
+		const newSelectedCommits = selectedCommitsIds.filter((id) => id !== clicked.id);
 
-		if (selectedCommits.length === newSelectedCommits.length) {
+		if (selectedCommitsIds.length === newSelectedCommits.length) {
 			// none found
-			newSelectedCommits.push(clicked);
+			newSelectedCommits.push(clicked.id);
 		}
-		selectedCommits = newSelectedCommits;
+		selectedCommitsIds = newSelectedCommits;
 	};
 
 	$: commits = $store.commits.map((c) => ({
@@ -138,6 +139,8 @@
 				return parentCommit;
 			}) ?? []
 	}));
+
+	$: commitsToLabel = commitsIdsToLabel.map((id) => commits.find((c) => c.id === id)!);
 </script>
 
 <svelte:window bind:innerWidth bind:innerHeight />
@@ -165,7 +168,7 @@
 			label={commit.name}
 			radius={gridSize / 4}
 			on:click={() => handleCommitClick(commit)}
-			selected={selectedCommits.some((c) => c.id === commit.id)}
+			selected={selectedCommitsIds.some((id) => id === commit.id)}
 		/>
 
 		{#each commit.parentCommits as parent}
