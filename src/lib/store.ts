@@ -1,6 +1,7 @@
 import type { TCommit } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import { writable, type Updater } from 'svelte/store';
+import { applyToChildren } from './utils';
 
 interface TStore {
 	commits: TCommit[];
@@ -28,13 +29,40 @@ const addCommit = (update: UpdateFn, commit: Pick<TCommit, 'pos' | 'parents'>) =
 	});
 };
 
+const moveCommit = (update: UpdateFn, id: TCommit['id'], pos: TCommit['pos']) => {
+	return update((r) => {
+		const commits = r.commits;
+		const found = commits.find((c) => c.id === id);
+		if (!found) return r;
+
+		
+		const translation = {
+			x: pos.x - found.pos.x,
+			y: pos.y - found.pos.y,
+		}
+
+		found.pos = pos; // apply to commit
+
+		return {
+			...r,
+			commits: applyToChildren(commits, id, c => {
+				return {
+					...c,
+					pos: {
+						x: c.pos.x + translation.x,
+						y: c.pos.y + translation.y
+					}
+				}
+			})
+		};
+	});
+};
+
 const renameCommit = (update: UpdateFn, commit: TCommit, name: string) => {
 	return update((r) => {
 		const commits = r.commits;
 		const found = commits.find((c) => c.id === commit.id);
-		if (!found) {
-			return r;
-		}
+		if (!found) return r;
 
 		found.name = name;
 		return {
@@ -59,6 +87,7 @@ const createStore = () => {
 	return {
 		subscribe,
 		addCommit: addCommit.bind(null, update),
+		moveCommit: moveCommit.bind(null, update),
 		renameCommit: renameCommit.bind(null, update)
 	};
 };

@@ -17,7 +17,6 @@
 	/**
 	 * TODOLIST
 	 * - create WorkingDirChanges component
-	 * - move elements with drag event
 	 * - merge action
 	 * - rebase action
 	 * - cherry-pick
@@ -55,15 +54,17 @@
 	$: handleCanvasClick = (ev: MouseEvent) => {
 		if (editMode === undefined) return;
 
+		const { clientX: x, clientY: y } = ev;
+		const pos = pos2grid({ x, y })
+
 		if (editMode === 'c') {
 			const parentId = selectedCommitsIds.at(0);
 			if (!parentId) {
 				console.log('Failure: cannot create commit w/o parent');
 				return;
 			}
-			const { clientX: x, clientY: y } = ev;
 			const newCommit = {
-				pos: pos2grid({ x, y }),
+				pos,
 				parents: [parentId] as [string]
 			};
 			if (!newCommit) return;
@@ -78,6 +79,13 @@
 		if (editMode === 'n') {
 			displayLabelInputs(selectedCommitsIds);
 		}
+		if (editMode === 'm') {
+			const toMoveId = selectedCommitsIds.at(0);
+			if (!toMoveId) return
+
+			store.moveCommit(toMoveId, pos);
+			selectedCommitsIds = []
+		}
 	};
 
 	let editMode: string | undefined;
@@ -89,8 +97,8 @@
 			commitsIdsToLabel = [];
 			return;
 		}
-
-		if (ev.key === 'c') editMode = ev.key;
+		
+		editMode = ev.key;
 	};
 
 	const handleKeyup = (ev: KeyboardEvent) => {
@@ -126,6 +134,9 @@
 		Mode: <span>
 			{#if editMode === 'c'}
 				commit creation
+			{/if}
+			{#if editMode === 'm'}
+				reposition
 			{/if}
 		</span>
 	</p>
