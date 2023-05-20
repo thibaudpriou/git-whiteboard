@@ -52,24 +52,20 @@
 		selectedCommitsIds = selectedCommitsIds.filter(filterSubmitted);
 	};
 
-	$: computeNewCommit = (pos: Pos, parentId?: string) => {
-		if (!parentId) {
-			console.log('Failure: cannot create commit w/o parent');
-			return;
-		}
-
-		return {
-			pos: pos2grid(pos),
-			parents: [parentId] as [string]
-		};
-	};
-
 	$: handleCanvasClick = (ev: MouseEvent) => {
 		if (editMode === undefined) return;
 
 		if (editMode === 'c') {
 			const parentId = selectedCommitsIds.at(0);
-			const newCommit = computeNewCommit({ x: ev.clientX, y: ev.clientY }, parentId);
+			if (!parentId) {
+				console.log('Failure: cannot create commit w/o parent');
+				return;
+			}
+			const { clientX: x, clientY: y } = ev;
+			const newCommit = {
+				pos: pos2grid({ x, y }),
+				parents: [parentId] as [string]
+			};
 			if (!newCommit) return;
 
 			store.addCommit(newCommit);
@@ -117,7 +113,7 @@
 		selectedCommitsIds = newSelectedCommits;
 	};
 
-	$: commitsWithParents = $store.commits.map(c => hydrateParentsCommitsCb($store.commits, c));
+	$: commitsWithParents = $store.commits.map((c) => hydrateParentsCommitsCb($store.commits, c));
 	$: commitsToLabel = commitsIdsToLabel.map((id) => getCommitById(commitsWithParents, id)!);
 </script>
 
