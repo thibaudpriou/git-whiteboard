@@ -62,11 +62,11 @@
 	};
 
 	$: handleCanvasClick = (ev: MouseEvent) => {
-		if (mode === undefined) {
+		if (editMode === undefined) {
 			return;
 		}
 
-		if (mode === 'c') {
+		if (editMode === 'c') {
 			// add a new commit
 			if (selectedCommits.length > 1) {
 				console.log('Failure: Cannot link to more than 1 commit'); // yet (it's a merge) ;)
@@ -91,14 +91,14 @@
 		}
 	};
 
-	let mode: string | undefined;
+	let editMode: string | undefined;
 	const handleKeydown = (ev: KeyboardEvent) => {
 		if (ev.repeat) return;
 
-		if (ev.key === 'c') mode = ev.key;
+		if (ev.key === 'c') editMode = ev.key;
 	};
 	const handleKeyup = (ev: KeyboardEvent) => {
-		mode = undefined;
+		editMode = undefined;
 	};
 
 	let selectedCommits: Commit[] = [];
@@ -121,17 +121,17 @@
 
 <svelte:document on:keydown={handleKeydown} on:keyup={handleKeyup} />
 
-{#if mode}
+{#if editMode}
 	<p class="mode-info">
 		Mode: <span>
-			{mode === 'c' && 'commit'}
+			{editMode === 'c' && 'commit'}
 		</span>
 	</p>
 {/if}
 <Canvas
 	width={innerWidth}
 	height={innerHeight}
-	on:click={mode !== undefined ? handleCanvasClick : undefined}
+	on:click={editMode !== undefined ? handleCanvasClick : undefined}
 	layerEvents={true}
 >
 	{#each Object.entries(memory.lines) as [k, line]}
