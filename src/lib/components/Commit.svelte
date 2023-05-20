@@ -7,6 +7,7 @@
 	export let y: number;
 	export let animDuration = 500;
 	export let radius = 50;
+	export let selected = false
 
 	const tweenedPos = (v: number) =>
 		tweened(v, {
@@ -32,6 +33,12 @@
 		context.beginPath();
 		context.arc($posX, $posY, radius, 0, Math.PI * 2);
 		context.fill();
+
+		if (selected) {
+			context.strokeStyle = `rgba(255, 0, 0)`;
+			context.lineWidth = 2;
+			context.stroke();
+		}
 	};
 </script>
 
