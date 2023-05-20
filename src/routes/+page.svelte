@@ -30,10 +30,7 @@
 
 	const gridSize = 100;
 
-	const cameraPos = {
-		x: 0,
-		y: 0
-	};
+	const cameraPos = { x: 0, y: 0 };
 
 	let innerHeight = 0,
 		innerWidth = 0;
@@ -70,21 +67,27 @@
 		selectedCommitsIds = [...selectedCommitsIds.filter(filterSubmitted)];
 	};
 
+	$: computeNewCommit = (pos: Pos, parentId?: string) => {
+		if (!parentId) {
+			console.log('Failure: cannot create commit w/o parent');
+			return;
+		}
+
+		return {
+			pos: pos2grid(pos),
+			parents: [parentId] as [string]
+		};
+	};
+
 	$: handleCanvasClick = (ev: MouseEvent) => {
 		if (editMode === undefined) return;
 
 		if (editMode === 'c') {
-			// add a new commit
 			const parentId = selectedCommitsIds.at(0);
-			if (!parentId) {
-				console.log('Failure: cannot create commit w/o parent');
-				return;
-			}
+			const newCommit = computeNewCommit({ x: ev.clientX, y: ev.clientY }, parentId);
+			if (!newCommit) return;
 
-			const newCommit = {
-				pos: pos2grid({ x: ev.clientX, y: ev.clientY })
-			};
-			store.addCommit(newCommit, [parentId]);
+			store.addCommit(newCommit);
 
 			const lastCommit = $store.commits.at(-1)!;
 			selectedCommitsIds = [lastCommit.id]; // to chain creation
@@ -129,18 +132,27 @@
 		selectedCommitsIds = newSelectedCommits;
 	};
 
-	$: commits = $store.commits.map((c) => ({
-		...c,
-		parentCommits:
-			c.parents?.map((pid) => {
-				const parentCommit = $store.commits.find((c2) => c2.id === pid);
-				if (!parentCommit) throw new Error('parent not found');
+	/**
+	 * Return the commit with its parent commits
+	 *
+	 * @param everyCommits
+	 * @param c
+	 */
+	const hydrateParentsCommitsCb = <T extends Partial<TCommit>>(everyCommits: TCommit[], c: T) => {
+		return {
+			...c,
+			parentCommits:
+				c.parents?.map((pid) => {
+					const parentCommit = everyCommits.find((c2) => c2.id === pid);
+					if (!parentCommit) throw new Error('parent not found');
 
-				return parentCommit;
-			}) ?? []
-	}));
+					return parentCommit;
+				}) ?? []
+		};
+	};
 
-	$: commitsToLabel = commitsIdsToLabel.map((id) => commits.find((c) => c.id === id)!);
+	$: commitsWithParents = $store.commits.map((c) => hydrateParentsCommitsCb($store.commits, c));
+	$: commitsToLabel = commitsIdsToLabel.map((id) => commitsWithParents.find((c) => c.id === id)!);
 </script>
 
 <svelte:window bind:innerWidth bind:innerHeight />
@@ -162,7 +174,7 @@
 	on:click={editMode !== undefined ? handleCanvasClick : undefined}
 	layerEvents={true}
 >
-	{#each commits as commit}
+	{#each commitsWithParents as commit}
 		<Commit
 			pos={grid2pos(commit.pos)}
 			label={commit.name}

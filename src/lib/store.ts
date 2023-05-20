@@ -10,8 +10,7 @@ type UpdateFn = (this: void, updater: Updater<TStore>) => void;
 
 const addCommit = (
 	update: UpdateFn,
-	commit: Pick<TCommit, 'pos'>,
-	parents: NonNullable<TCommit['parents']>
+	commit: Pick<TCommit, 'pos'|'parents'>
 ) => {
 	return update((r) => {
 		const doesPosExists = r.commits.some(
@@ -23,7 +22,6 @@ const addCommit = (
 		const newCommit = {
 			...commit,
 			id: uuidv4(),
-			parents
 		};
 
 		return {
