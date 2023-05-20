@@ -7,6 +7,13 @@
 
 	import LabelInput from '$lib/components/LabelInput.svelte';
 	import { store } from '$lib/store';
+	import {
+		compteGridSize,
+		getCommitById,
+		getGridFromPosition,
+		getPositionFromGrid,
+		hydrateParentsCommitsCb
+	} from '$lib/utils';
 
 	/**
 	 * TODOLIST
@@ -28,25 +35,21 @@
 		staged: Staged[];
 	}
 
-	const gridSize = 100;
-
-	const cameraPos = { x: 0, y: 0 };
 
 	let innerHeight = 0,
 		innerWidth = 0;
 
-	$: grid2pos = (p: Pos): Pos => {
-		return {
-			x: innerWidth / 2 + (p.x + cameraPos.x) * gridSize,
-			y: innerHeight / 2 + (-p.y + cameraPos.y) * gridSize
-		};
-	};
-	$: pos2grid = (p: Pos): Pos => {
-		return {
-			x: Math.round((p.x - innerWidth / 2) / gridSize - cameraPos.x),
-			y: Math.round(-(p.y - innerHeight / 2) / gridSize + cameraPos.y)
-		};
-	};
+	const camera = { x: 3, y: 0, z: 2 };
+
+	let gridSize: number;
+	let grid2pos: (p: Pos) => Pos;
+	let pos2grid: (p: Pos) => Pos;
+	$: {
+		const win = { innerHeight, innerWidth };
+		gridSize = compteGridSize(100, camera);
+		grid2pos = getPositionFromGrid.bind(null, win, camera, gridSize);
+		pos2grid = getGridFromPosition.bind(null, win, camera, gridSize);
+	}
 
 	let memory: Mem;
 	$: memory = {
@@ -63,8 +66,8 @@
 
 		store.renameCommit(commit, ev.detail);
 		const filterSubmitted = (id: TCommit['id']) => id !== commit.id;
-		commitsIdsToLabel = [...commitsIdsToLabel.filter(filterSubmitted)];
-		selectedCommitsIds = [...selectedCommitsIds.filter(filterSubmitted)];
+		commitsIdsToLabel = commitsIdsToLabel.filter(filterSubmitted);
+		selectedCommitsIds = selectedCommitsIds.filter(filterSubmitted);
 	};
 
 	$: computeNewCommit = (pos: Pos, parentId?: string) => {
@@ -132,27 +135,8 @@
 		selectedCommitsIds = newSelectedCommits;
 	};
 
-	/**
-	 * Return the commit with its parent commits
-	 *
-	 * @param everyCommits
-	 * @param c
-	 */
-	const hydrateParentsCommitsCb = <T extends Partial<TCommit>>(everyCommits: TCommit[], c: T) => {
-		return {
-			...c,
-			parentCommits:
-				c.parents?.map((pid) => {
-					const parentCommit = everyCommits.find((c2) => c2.id === pid);
-					if (!parentCommit) throw new Error('parent not found');
-
-					return parentCommit;
-				}) ?? []
-		};
-	};
-
-	$: commitsWithParents = $store.commits.map((c) => hydrateParentsCommitsCb($store.commits, c));
-	$: commitsToLabel = commitsIdsToLabel.map((id) => commitsWithParents.find((c) => c.id === id)!);
+	$: commitsWithParents = $store.commits.map(c => hydrateParentsCommitsCb($store.commits, c));
+	$: commitsToLabel = commitsIdsToLabel.map((id) => getCommitById(commitsWithParents, id)!);
 </script>
 
 <svelte:window bind:innerWidth bind:innerHeight />

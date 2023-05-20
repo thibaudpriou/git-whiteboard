@@ -8,20 +8,17 @@ interface TStore {
 
 type UpdateFn = (this: void, updater: Updater<TStore>) => void;
 
-const addCommit = (
-	update: UpdateFn,
-	commit: Pick<TCommit, 'pos'|'parents'>
-) => {
+const addCommit = (update: UpdateFn, commit: Pick<TCommit, 'pos' | 'parents'>) => {
 	return update((r) => {
 		const doesPosExists = r.commits.some(
 			(c) => c.pos.x === commit.pos.x && c.pos.y === commit.pos.y
 		);
 
-		if (doesPosExists) return r
+		if (doesPosExists) return r;
 
 		const newCommit = {
 			...commit,
-			id: uuidv4(),
+			id: uuidv4()
 		};
 
 		return {

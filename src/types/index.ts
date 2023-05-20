@@ -1,4 +1,10 @@
-export type Pos = { x: number; y: number };
+export interface Pos {
+	x: number;
+	y: number;
+}
+export interface Pos3D extends Pos {
+	z: number;
+}
 
 export type TCommit = {
 	id: string;
