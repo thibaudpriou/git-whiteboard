@@ -26,7 +26,7 @@
 	let innerHeight = 0,
 		innerWidth = 0;
 
-	const camera = { x: 3, y: 0, z: 2 };
+	const camera = { x: 0, y: 2, z: 2 };
 
 	let gridSize: number;
 	let grid2pos: (p: Pos) => Pos;
