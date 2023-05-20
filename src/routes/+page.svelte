@@ -17,7 +17,6 @@
 	/**
 	 * TODOLIST
 	 * - create WorkingDirChanges component
-	 * - merge action
 	 * - rebase action
 	 * - cherry-pick
 	 */
@@ -55,18 +54,17 @@
 		if (editMode === undefined) return;
 
 		const { clientX: x, clientY: y } = ev;
-		const pos = pos2grid({ x, y })
+		const pos = pos2grid({ x, y });
 
 		if (editMode === 'c') {
-			const parentId = selectedCommitsIds.at(0);
-			if (!parentId) {
+			if (selectedCommitsIds.length == 0) {
 				console.log('Failure: cannot create commit w/o parent');
 				return;
 			}
-			const newCommit = {
-				pos,
-				parents: [parentId] as [string]
-			};
+
+			const parents = selectedCommitsIds.slice(0, 2) as [string] | [string, string];
+
+			const newCommit = { pos, parents };
 			if (!newCommit) return;
 
 			store.addCommit(newCommit);
@@ -81,10 +79,10 @@
 		}
 		if (editMode === 'm') {
 			const toMoveId = selectedCommitsIds.at(0);
-			if (!toMoveId) return
+			if (!toMoveId) return;
 
 			store.moveCommit(toMoveId, pos);
-			selectedCommitsIds = []
+			selectedCommitsIds = [];
 		}
 	};
 
@@ -97,7 +95,7 @@
 			commitsIdsToLabel = [];
 			return;
 		}
-		
+
 		editMode = ev.key;
 	};
 
