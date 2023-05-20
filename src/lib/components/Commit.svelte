@@ -7,7 +7,8 @@
 	export let pos: Pos;
 	export let animDuration = 500;
 	export let radius = 50;
-	export let selected = false
+	export let selected = false;
+	export let label: string | undefined;
 
 	const tweenedPos = (v: number) =>
 		tweened(v, {
@@ -39,7 +40,14 @@
 			context.lineWidth = 2;
 			context.stroke();
 		}
+		
+		if (label) {
+			context.font = `${radius}px serif`;
+			context.fillStyle = `rgba(0, 0, 0)`;
+			const offset = radius * 1.5
+			context.fillText(label, $posX + offset, $posY  + offset);
+		}
 	};
 </script>
 
-<Layer {render} on:click/>
+<Layer {render} on:click />

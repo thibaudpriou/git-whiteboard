@@ -6,10 +6,12 @@
 	import type { Pos } from '../types';
 
 	import { v4 as uuidv4 } from 'uuid';
+	import LabelInput from '$lib/components/LabelInput.svelte';
 
 	type Commit = {
 		id: string;
 		pos: Pos;
+		name?: string;
 	};
 
 	type Staged = {
@@ -49,11 +51,33 @@
 		};
 	};
 
-	let memory: Mem;
+	// TODO create a store
+	const renameCommit = (commit: Commit, name: string) => {
+		const found = memory.commits.find((c) => c.id === commit.id);
+		if (!found) return;
 
+		found.name = name;
+		memory.commits = [...memory.commits];
+	};
+	const createCommit = (pos: Commit['pos'], head?: Commit) => {
+		const newCommit = { id: uuidv4(), pos };
+		memory.commits = [...memory.commits, newCommit];
+		if (head) {
+			memory.lines = [
+				...memory.lines,
+				{
+					start: head,
+					end: newCommit
+				}
+			];
+		}
+	};
+
+	let memory: Mem;
 	$: rootCommit = {
 		id: uuidv4(),
-		pos: { x: 0, y: 0 }
+		pos: { x: 0, y: 0 },
+		name: 'Root'
 	};
 	$: memory = {
 		commits: [rootCommit],
@@ -61,10 +85,22 @@
 		staged: []
 	};
 
+	let commitsToLabel: Commit[] = [];
+	const displayLabelInputs = (commits: Commit[]) => {
+		commitsToLabel = commits;
+	};
+
+	const handleLabelSubmit = (commit: Commit, ev: CustomEvent<string>) => {
+		if (!commit) return;
+
+		renameCommit(commit, ev.detail);
+		const filterSubmitted = (c: Commit) => c.id !== commit.id;
+		commitsToLabel = [...commitsToLabel.filter(filterSubmitted)];
+		selectedCommits = [...selectedCommits.filter(filterSubmitted)];
+	};
+
 	$: handleCanvasClick = (ev: MouseEvent) => {
-		if (editMode === undefined) {
-			return;
-		}
+		if (editMode === undefined) return;
 
 		if (editMode === 'c') {
 			// add a new commit
@@ -74,20 +110,14 @@
 			}
 
 			const pos = pos2grid({ x: ev.clientX, y: ev.clientY });
-			const newCommit = { id: uuidv4(), pos };
-			memory.commits = [...memory.commits, newCommit];
-			if (selectedCommits[0]) {
-				memory.lines = [
-					...memory.lines,
-					{
-						start: selectedCommits[0],
-						end: newCommit
-					}
-				];
-			}
+			createCommit(pos, selectedCommits.at(0));
 
-			selectedCommits = []; // reset
+			selectedCommits = [];
 			return;
+		}
+
+		if (editMode === 'n') {
+			displayLabelInputs(selectedCommits);
 		}
 	};
 
@@ -95,10 +125,21 @@
 	const handleKeydown = (ev: KeyboardEvent) => {
 		if (ev.repeat) return;
 
+		if (ev.key === 'Escape') {
+			selectedCommits = [];
+			commitsToLabel = [];
+			return;
+		}
+
 		if (ev.key === 'c') editMode = ev.key;
 	};
+
 	const handleKeyup = (ev: KeyboardEvent) => {
 		editMode = undefined;
+
+		if (ev.key === 'n') {
+			displayLabelInputs(selectedCommits);
+		}
 	};
 
 	let selectedCommits: Commit[] = [];
@@ -124,7 +165,9 @@
 {#if editMode}
 	<p class="mode-info">
 		Mode: <span>
-			{editMode === 'c' && 'commit'}
+			{#if editMode === 'c'}
+				commit creation
+			{/if}
 		</span>
 	</p>
 {/if}
@@ -141,6 +184,7 @@
 	{#each memory.commits as commit}
 		<Commit
 			pos={grid2pos(commit.pos)}
+			label={commit.name}
 			radius={gridSize / 4}
 			on:click={() => handleCommitClick(commit)}
 			selected={selectedCommits.some((c) => c.id === commit.id)}
@@ -152,6 +196,10 @@
 		<Staged x={grid2pos(staged.pos).x} y={grid2pos(staged.pos).y} radius={gridSize / 4} />
 	{/each}
 </Canvas>
+
+{#each commitsToLabel as c}
+	<LabelInput label={c.name} pos={grid2pos(c.pos)} on:submit={(e) => handleLabelSubmit(c, e)} />
+{/each}
 
 <style>
 	.mode-info {
