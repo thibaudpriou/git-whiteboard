@@ -1,8 +1,8 @@
 <script lang="ts">
-	import Commit from '$lib/components/Commit.svelte';
-	import Line from '$lib/components/Line.svelte';
+	import CommitLayer from '$lib/components/CommitLayer.svelte';
+	import CommitLinkLayer from '$lib/components/CommitLinkLayer.svelte';
 	import { Canvas } from 'svelte-canvas';
-	import type { TCommit, Pos } from '../types';
+	import type { Commit, Pos } from '../types';
 
 	import LabelInput from '$lib/components/LabelInput.svelte';
 	import { store } from '$lib/store';
@@ -40,12 +40,12 @@
 		pos2grid = getGridFromPosition.bind(null, win, camera, gridSize);
 	}
 
-	let commitsIdsToLabel: TCommit['id'][] = [];
-	const displayLabelInputs = (id: TCommit['id'][]) => {
+	let commitsIdsToLabel: Commit['id'][] = [];
+	const displayLabelInputs = (id: Commit['id'][]) => {
 		commitsIdsToLabel = id;
 	};
 
-	const handleLabelSubmit = (commit: TCommit, ev: CustomEvent<string>) => {
+	const handleLabelSubmit = (commit: Commit, ev: CustomEvent<string>) => {
 		if (!commit) return;
 
 		store.renameCommit(commit, ev.detail);
@@ -115,8 +115,8 @@
 		selectedCommitsIds = [];
 	};
 
-	let selectedCommitsIds: TCommit['id'][] = [];
-	const handleCommitClick = (clicked: TCommit) => {
+	let selectedCommitsIds: Commit['id'][] = [];
+	const handleCommitClick = (clicked: Commit) => {
 		// remove if exists
 		const newSelectedCommits = selectedCommitsIds.filter((id) => id !== clicked.id);
 
@@ -145,7 +145,7 @@
 	layerEvents={true}
 >
 	{#each commitsWithParents as commit}
-		<Commit
+		<CommitLayer
 			pos={grid2pos(commit.pos)}
 			label={commit.name}
 			radius={gridSize / 4}
@@ -154,8 +154,7 @@
 		/>
 
 		{#each commit.parentCommits as parent}
-			<!-- TODO rename component Line -> Link -->
-			<Line startPoint={grid2pos(parent.pos)} endPoint={grid2pos(commit.pos)} />
+			<CommitLinkLayer startPoint={grid2pos(parent.pos)} endPoint={grid2pos(commit.pos)} />
 		{/each}
 	{/each}
 </Canvas>

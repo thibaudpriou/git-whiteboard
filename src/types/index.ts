@@ -6,9 +6,9 @@ export interface Pos3D extends Pos {
 	z: number;
 }
 
-export type TCommit = {
+export type Commit = {
 	id: string;
 	pos: Pos;
 	name?: string;
-	parents: [TCommit['id']] | [TCommit['id'], TCommit['id']] | null;
+	parents: [Commit['id']] | [Commit['id'], Commit['id']] | null;
 };

@@ -1,4 +1,4 @@
-import type { TCommit } from '../../types';
+import type { Commit } from '../../types';
 
 /**
  * Recursively find every commits that have given commits ids as parents, even indirectly.
@@ -8,7 +8,7 @@ import type { TCommit } from '../../types';
  * @param id
  * @returns an array of id
  */
-const getDescendants = (commits: TCommit[], ids: TCommit['id'][]): TCommit['id'][] => {
+const getDescendants = (commits: Commit[], ids: Commit['id'][]): Commit['id'][] => {
 	const directDescendants = commits
 		.filter((c) => {
 			const firstParent = c.parents?.at(0);
@@ -31,9 +31,9 @@ const getDescendants = (commits: TCommit[], ids: TCommit['id'][]): TCommit['id']
  * @returns
  */
 export const applyToChildren = (
-	commits: TCommit[],
-	id: TCommit['id'],
-	cb: (c: TCommit) => TCommit
+	commits: Commit[],
+	id: Commit['id'],
+	cb: (c: Commit) => Commit
 ) => {
 	const children = getDescendants(commits, [id]);
 

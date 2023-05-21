@@ -1,4 +1,4 @@
-import type { TCommit } from "../../types";
+import type { Commit } from "../../types";
 
 /**
  * Return commit of given id
@@ -7,8 +7,8 @@ import type { TCommit } from "../../types";
  * @param c
  */
 export const getCommitById = (
-	everyCommits: TCommit[],
-	id: TCommit['id']
+	everyCommits: Commit[],
+	id: Commit['id']
 ) => {
 	return everyCommits.find((c) => c.id === id);
 };

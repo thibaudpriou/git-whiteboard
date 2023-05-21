@@ -1,15 +1,15 @@
-import type { TCommit } from '../types';
+import type { Commit } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import { writable, type Updater } from 'svelte/store';
 import { applyToChildren } from './utils';
 
 interface TStore {
-	commits: TCommit[];
+	commits: Commit[];
 }
 
 type UpdateFn = (this: void, updater: Updater<TStore>) => void;
 
-const addCommit = (update: UpdateFn, commit: Pick<TCommit, 'pos' | 'parents'>) => {
+const addCommit = (update: UpdateFn, commit: Pick<Commit, 'pos' | 'parents'>) => {
 	return update((r) => {
 		const doesPosExists = r.commits.some(
 			(c) => c.pos.x === commit.pos.x && c.pos.y === commit.pos.y
@@ -29,7 +29,7 @@ const addCommit = (update: UpdateFn, commit: Pick<TCommit, 'pos' | 'parents'>) =
 	});
 };
 
-const moveCommit = (update: UpdateFn, id: TCommit['id'], pos: TCommit['pos']) => {
+const moveCommit = (update: UpdateFn, id: Commit['id'], pos: Commit['pos']) => {
 	return update((r) => {
 		const commits = r.commits;
 		const found = commits.find((c) => c.id === id);
@@ -58,7 +58,7 @@ const moveCommit = (update: UpdateFn, id: TCommit['id'], pos: TCommit['pos']) =>
 	});
 };
 
-const renameCommit = (update: UpdateFn, commit: TCommit, name: string) => {
+const renameCommit = (update: UpdateFn, commit: Commit, name: string) => {
 	return update((r) => {
 		const commits = r.commits;
 		const found = commits.find((c) => c.id === commit.id);

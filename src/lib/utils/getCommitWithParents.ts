@@ -1,4 +1,4 @@
-import type { TCommit } from "../../types";
+import type { Commit } from "../../types";
 
 /**
  * Return given commit with its parent commits
@@ -6,8 +6,8 @@ import type { TCommit } from "../../types";
  * @param everyCommits
  * @param c
  */
-export const hydrateParentsCommitsCb = <T extends Partial<TCommit>>(
-	everyCommits: TCommit[],
+export const hydrateParentsCommitsCb = <T extends Partial<Commit>>(
+	everyCommits: Commit[],
 	c: T
 ) => {
 	return {
