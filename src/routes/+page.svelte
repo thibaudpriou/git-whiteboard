@@ -25,6 +25,8 @@
 	 * - create WorkingDirChanges component
 	 * - rebase action
 	 * - cherry-pick
+	 *
+	 * - split this component in 2: 1 for UI (grid, etc) and 1 for controls
 	 */
 
 	let innerHeight = 0,
@@ -90,12 +92,12 @@
 			const newCommit = { pos, parents } as Commit;
 			store.addCommit(newCommit);
 
-			selectedCommitsIds = [] // reset
+			selectedCommitsIds = []; // reset
 			editMode = undefined;
 			return;
 		}
 
-		if (ActionType.MOVE === editMode) {
+		if (ActionType.POSITION === editMode) {
 			const toMoveId = selectedCommitsIds.at(0);
 			if (!toMoveId) return;
 
@@ -177,6 +179,7 @@
 <span class="mode-info">
 	<ActionBanner action={editMode} />
 </span>
+
 {#if innerWidth && innerHeight}
 	<Canvas
 		width={innerWidth}

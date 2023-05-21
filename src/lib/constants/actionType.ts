@@ -1,10 +1,11 @@
 export enum ActionType {
 	CANCEL = 'Escape',
 	BEAUTIFY = 'y',
+	HELP = 'h',
 
 	// with toggle behavior
 	RENAME = 'n',
-	MOVE = 'o', // !FIXME naming: order? reorder?
+	POSITION = 'p',
 	COMMIT = 'c',
 	MERGE = 'm'
 }
