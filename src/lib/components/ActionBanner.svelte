@@ -5,7 +5,7 @@
 </script>
 
 {#if action}
-	<p class="mode-info">
+	<p class="banner">
 		Mode: <span>
 			{#if action === ActionType.COMMIT}
 				commit creation
@@ -16,3 +16,10 @@
 		</span>
 	</p>
 {/if}
+
+<style>
+	.banner {
+		padding: .2em 1em;
+		margin: .2em;
+	}
+</style>
