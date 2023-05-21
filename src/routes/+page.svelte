@@ -99,20 +99,16 @@
 			return;
 		}
 
-		if (isAllowedAction(ev.key)) {
-			editMode = ev.key;
-		}
-	};
+		if (!isAllowedAction(ev.key)) return;
 
-	const handleKeyup = (ev: KeyboardEvent) => {
-		editMode = undefined;
-
-		if (ev.key === 'n') {
-			displayLabelInputs(selectedCommitsIds);
+		if (editMode === ev.key) {
+			// reset
+			selectedCommitsIds = [];
+			editMode = undefined;
 			return;
 		}
 
-		selectedCommitsIds = [];
+		editMode = ev.key;
 	};
 
 	let selectedCommitsIds: Commit['id'][] = [];
@@ -133,7 +129,7 @@
 
 <svelte:window bind:innerWidth bind:innerHeight />
 
-<svelte:document on:keydown={handleKeydown} on:keyup={handleKeyup} />
+<svelte:document on:keydown={handleKeydown} />
 
 <span class="mode-info">
 	<ActionBanner action={editMode} />
