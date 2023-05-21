@@ -1,38 +1,40 @@
 <script lang="ts">
 	import { Layer, type Render } from 'svelte-canvas';
 	import { tweened } from 'svelte/motion';
-	import { quartInOut } from 'svelte/easing';
+	import { cubicIn } from 'svelte/easing';
 	import type { Pos } from '../../types';
+	import { tweenedPos } from '$lib/motions';
 
 	export let pos: Pos;
-	export let animDuration = 500;
-	export let radius = 50;
+	export let animDuration: number | undefined = undefined;
+	export let radius = 0;
 	export let selected = false;
 	export let label: string | undefined;
 
-	const interpolateNb = (from: number, to: number, t: number) => from * (1 - t) + to * t;
+	const animatedPos = tweenedPos(pos, animDuration);
 
-	const tweenedPos = tweened(pos, {
-		duration: animDuration,
-		easing: quartInOut,
-		interpolate: (from, to) => (t) => {
-			return {
-				x: interpolateNb(from.x, to.x, t),
-				y: interpolateNb(from.y, to.y, t)
-			};
-		}
+	const tweenedRadius = tweened(0, {
+		duration: 50,
+		easing: cubicIn
 	});
 
 	$: {
-		tweenedPos.set(pos);
+		animatedPos.set(pos);
+	}
+	$: {
+		tweenedRadius.set(radius);
 	}
 
 	let render: Render;
 	$: render = ({ context }) => {
+		const animatedRadius = $tweenedRadius;
+
 		context.fillStyle = `rgba(0, 0, 255)`;
 		context.beginPath();
-		context.arc($tweenedPos.x, $tweenedPos.y, radius, 0, Math.PI * 2);
-		context.fill();
+		context.arc($animatedPos.x, $animatedPos.y, animatedRadius, 0, Math.PI * 2);
+		if (animatedRadius !== 0) {
+			context.fill();
+		}
 
 		if (selected) {
 			context.strokeStyle = `rgba(255, 0, 0)`;
@@ -41,10 +43,10 @@
 		}
 
 		if (label) {
-			context.font = `${radius}px serif`;
+			context.font = `${animatedRadius}px serif`;
 			context.fillStyle = `rgba(0, 0, 0)`;
-			const offset = radius * 1.5;
-			context.fillText(label, $tweenedPos.x + offset, $tweenedPos.y + offset);
+			const offset = animatedRadius * 1.5;
+			context.fillText(label, $animatedPos.x + offset, $animatedPos.y + offset);
 		}
 	};
 </script>
