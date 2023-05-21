@@ -18,7 +18,6 @@
 
 	let render: Render;
 	$: render = ({ context }) => {
-		context.fillStyle = `rgba(0, 0, 255)`;
 		context.beginPath();
 		context.moveTo($animatedStart.x, $animatedStart.y);
 		context.lineTo($animatedEnd.x, $animatedEnd.y);
@@ -28,5 +27,5 @@
 		context.stroke();
 	};
 </script>
-
+	
 <Layer {render} />

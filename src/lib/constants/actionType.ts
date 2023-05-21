@@ -1,5 +1,6 @@
 export enum ActionType {
 	CANCEL = 'Escape',
+	BEAUTIFY = 'y',
 
 	// with toggle behavior
 	RENAME = 'n',

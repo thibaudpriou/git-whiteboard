@@ -116,6 +116,11 @@
 			return;
 		}
 
+		if (ActionType.BEAUTIFY === key) {
+			store.beautify();
+			return;
+		}
+
 		if (commitsIdsToLabel.length) {
 			/**
 			 * don't listen to users input when entering text

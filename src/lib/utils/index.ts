@@ -1,4 +1,5 @@
 export * from './action';
+export * from './beautifyCommits';
 export * from './children';
 export * from './getCommitById';
 export * from './getCommitWithParents';

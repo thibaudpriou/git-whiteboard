@@ -1,7 +1,7 @@
 import type { Commit } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import { writable, type Updater } from 'svelte/store';
-import { applyToChildren } from './utils';
+import { applyToChildren, beautifyCommitsPositions } from './utils';
 
 interface TStore {
 	commits: Commit[];
@@ -25,6 +25,15 @@ const addCommit = (update: UpdateFn, commit: Pick<Commit, 'pos' | 'parents'>) =>
 		return {
 			...r,
 			commits: [...r.commits, newCommit]
+		};
+	});
+};
+
+const beautify = (update: UpdateFn) => {
+	return update((r) => {
+		return {
+			...r,
+			commits: beautifyCommitsPositions(r.commits)
 		};
 	});
 };
@@ -87,6 +96,7 @@ const createStore = () => {
 	return {
 		subscribe,
 		addCommit: addCommit.bind(null, update),
+		beautify: beautify.bind(null,update),
 		moveCommit: moveCommit.bind(null, update),
 		renameCommit: renameCommit.bind(null, update)
 	};
