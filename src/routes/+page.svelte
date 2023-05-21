@@ -12,7 +12,8 @@
 		getGridFromPosition,
 		getPositionFromGrid,
 		hydrateParentsCommitsCb,
-		isAllowedAction
+		isAllowedAction,
+		removeArrayEl
 	} from '$lib/utils';
 	import { ActionType } from '$lib/constants';
 	import ActionBanner from '$lib/components/ActionBanner.svelte';
@@ -48,9 +49,8 @@
 		if (!commit) return;
 
 		store.renameCommit(commit, ev.detail);
-		const filterSubmitted = (id: TCommit['id']) => id !== commit.id;
-		commitsIdsToLabel = commitsIdsToLabel.filter(filterSubmitted);
-		selectedCommitsIds = selectedCommitsIds.filter(filterSubmitted);
+		commitsIdsToLabel = removeArrayEl(commitsIdsToLabel, commit.id);
+		selectedCommitsIds = removeArrayEl(selectedCommitsIds, commit.id);
 	};
 
 	$: handleCanvasClick = (ev: MouseEvent) => {
