@@ -13,6 +13,8 @@
 		getPositionFromGrid,
 		hydrateParentsCommitsCb,
 		isAllowedAction,
+		keyActionToCameraMotion,
+		moveCamera,
 		removeArrayEl
 	} from '$lib/utils';
 	import { ActionType } from '$lib/constants';
@@ -28,7 +30,7 @@
 	let innerHeight = 0,
 		innerWidth = 0;
 
-	const camera = { x: 0, y: 2, z: 2 };
+	let camera = { x: 0, y: 2, z: 2 };
 
 	let gridSize: number;
 	let grid2pos: (p: Pos) => Pos;
@@ -93,22 +95,30 @@
 	const handleKeydown = (ev: KeyboardEvent) => {
 		if (ev.repeat) return;
 
-		if (ActionType.CANCEL === ev.key) {
+		const { key, shiftKey } = ev;
+
+		if (ActionType.CANCEL === key) {
 			selectedCommitsIds = [];
 			commitsIdsToLabel = [];
 			return;
 		}
 
-		if (!isAllowedAction(ev.key)) return;
+		const motion = keyActionToCameraMotion(key, shiftKey);
+		if (motion) {
+			camera = moveCamera(motion, camera);
+			return;
+		}
 
-		if (editMode === ev.key) {
+		if (!isAllowedAction(key)) return;
+
+		if (editMode === key) {
 			// reset
 			selectedCommitsIds = [];
 			editMode = undefined;
 			return;
 		}
 
-		editMode = ev.key;
+		editMode = key;
 	};
 
 	let selectedCommitsIds: Commit['id'][] = [];
