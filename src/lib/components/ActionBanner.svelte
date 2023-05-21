@@ -16,6 +16,9 @@
 			{#if action === ActionType.RENAME}
 				rename
 			{/if}
+			{#if action === ActionType.MERGE}
+				merge
+			{/if}
 		</span>
 	</p>
 {/if}

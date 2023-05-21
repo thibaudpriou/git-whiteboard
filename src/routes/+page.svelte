@@ -66,20 +66,32 @@
 		}
 
 		if (ActionType.COMMIT === editMode) {
-			if (selectedCommitsIds.length == 0) {
-				console.log('Failure: cannot create commit w/o parent');
-				return;
-			}
+			const first = selectedCommitsIds.at(0);
+			if (!first) return;
 
-			const parents = selectedCommitsIds.slice(0, 2) as [string] | [string, string];
+			let parents: [string] = [first];
 
-			const newCommit = { pos, parents };
-			if (!newCommit) return;
-
+			const newCommit = { pos, parents } as Commit;
 			store.addCommit(newCommit);
 
 			const lastCommit = $store.commits.at(-1)!;
+
 			selectedCommitsIds = [lastCommit.id]; // to chain creation
+			return;
+		}
+
+		if (ActionType.MERGE === editMode) {
+			const first = selectedCommitsIds.at(0);
+			const second = selectedCommitsIds.at(1);
+			if (!first || !second) return;
+
+			let parents: [string, string] = [first, second];
+
+			const newCommit = { pos, parents } as Commit;
+			store.addCommit(newCommit);
+
+			selectedCommitsIds = [] // reset
+			editMode = undefined;
 			return;
 		}
 

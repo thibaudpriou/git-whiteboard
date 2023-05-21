@@ -3,6 +3,7 @@ export enum ActionType {
 
 	// with toggle behavior
 	RENAME = 'n',
-	MOVE = 'm',
-	COMMIT = 'c'
+	MOVE = 'o', // !FIXME naming: order? reorder?
+	COMMIT = 'c',
+	MERGE = 'm'
 }
