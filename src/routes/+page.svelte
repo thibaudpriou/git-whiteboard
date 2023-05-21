@@ -103,7 +103,10 @@
 
 		if (ev.key === 'n') {
 			displayLabelInputs(selectedCommitsIds);
+			return
 		}
+
+		selectedCommitsIds = []
 	};
 
 	let selectedCommitsIds: TCommit['id'][] = [];
