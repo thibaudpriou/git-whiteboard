@@ -6,6 +6,5 @@ export enum ActionType {
 	// with toggle behavior
 	RENAME = 'n',
 	POSITION = 'p',
-	COMMIT = 'c',
-	MERGE = 'm'
+	COMMIT = 'c'
 }

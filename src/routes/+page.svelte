@@ -68,32 +68,19 @@
 		}
 
 		if (ActionType.COMMIT === editMode) {
-			const first = selectedCommitsIds.at(0);
-			if (!first) return;
-
-			let parents: [string] = [first];
+			const parents = selectedCommitsIds.slice(0, 2);
+			if (!parents.length) return;
 
 			const newCommit = { pos, parents } as Commit;
+			
+			const prevLastCommit = $store.commits.at(-1)!;
 			store.addCommit(newCommit);
-
 			const lastCommit = $store.commits.at(-1)!;
 
-			selectedCommitsIds = [lastCommit.id]; // to chain creation
-			return;
-		}
-
-		if (ActionType.MERGE === editMode) {
-			const first = selectedCommitsIds.at(0);
-			const second = selectedCommitsIds.at(1);
-			if (!first || !second) return;
-
-			let parents: [string, string] = [first, second];
-
-			const newCommit = { pos, parents } as Commit;
-			store.addCommit(newCommit);
-
-			selectedCommitsIds = []; // reset
-			editMode = undefined;
+			if (prevLastCommit.id !== lastCommit.id) {
+				// a new commit was created
+				selectedCommitsIds = [lastCommit.id]; // to chain creation
+			}
 			return;
 		}
 

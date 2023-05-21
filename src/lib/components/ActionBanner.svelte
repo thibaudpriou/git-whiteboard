@@ -21,14 +21,8 @@
 				<ul>
 					<li>
 						<p>
-							"<strong>c</strong>" mode: to create commits. <br />Select a commit then click on
+							"<strong>c</strong>" mode: to create commits. <br />Select up to 2 commits then click on
 							target position.
-						</p>
-					</li>
-					<li>
-						<p>
-							"<strong>m</strong>" mode: to merge. <br />Select 2 commits then click on target
-							position.
 						</p>
 					</li>
 					<li>
@@ -57,9 +51,6 @@
 				{/if}
 				{#if action === ActionType.RENAME}
 					rename
-				{/if}
-				{#if action === ActionType.MERGE}
-					merge
 				{/if}
 			</span>
 		</p>
