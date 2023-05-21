@@ -138,26 +138,28 @@
 <span class="mode-info">
 	<ActionBanner action={editMode} />
 </span>
-<Canvas
-	width={innerWidth}
-	height={innerHeight}
-	on:click={editMode !== undefined ? handleCanvasClick : undefined}
-	layerEvents={true}
->
-	{#each commitsWithParents as commit}
-		<CommitLayer
-			pos={grid2pos(commit.pos)}
-			label={commit.name}
-			radius={gridSize / 4}
-			on:click={() => handleCommitClick(commit)}
-			selected={selectedCommitsIds.some((id) => id === commit.id)}
-		/>
+{#if innerWidth && innerHeight}
+	<Canvas
+		width={innerWidth}
+		height={innerHeight}
+		on:click={editMode !== undefined ? handleCanvasClick : undefined}
+		layerEvents={true}
+	>
+		{#each commitsWithParents as commit}
+			<CommitLayer
+				pos={grid2pos(commit.pos)}
+				label={commit.name}
+				radius={gridSize / 4}
+				on:click={() => handleCommitClick(commit)}
+				selected={selectedCommitsIds.some((id) => id === commit.id)}
+			/>
 
-		{#each commit.parentCommits as parent}
-			<CommitLinkLayer startPoint={grid2pos(parent.pos)} endPoint={grid2pos(commit.pos)} />
+			{#each commit.parentCommits as parent}
+				<CommitLinkLayer startPoint={grid2pos(parent.pos)} endPoint={grid2pos(commit.pos)} />
+			{/each}
 		{/each}
-	{/each}
-</Canvas>
+	</Canvas>
+{/if}
 
 {#each commitsToLabel as c}
 	<LabelInput label={c.name} pos={grid2pos(c.pos)} on:submit={(e) => handleLabelSubmit(c, e)} />
