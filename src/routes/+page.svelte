@@ -145,6 +145,13 @@
 		on:click={editMode !== undefined ? handleCanvasClick : undefined}
 		layerEvents={true}
 	>
+		<!-- display links underneath commits  -->
+		{#each commitsWithParents as commit}
+			{#each commit.parentCommits as parent}
+				<CommitLinkLayer startPoint={grid2pos(parent.pos)} endPoint={grid2pos(commit.pos)} />
+			{/each}
+		{/each}
+
 		{#each commitsWithParents as commit}
 			<CommitLayer
 				pos={grid2pos(commit.pos)}
@@ -153,10 +160,6 @@
 				on:click={() => handleCommitClick(commit)}
 				selected={selectedCommitsIds.some((id) => id === commit.id)}
 			/>
-
-			{#each commit.parentCommits as parent}
-				<CommitLinkLayer startPoint={grid2pos(parent.pos)} endPoint={grid2pos(commit.pos)} />
-			{/each}
 		{/each}
 	</Canvas>
 {/if}
