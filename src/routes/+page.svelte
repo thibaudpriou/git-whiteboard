@@ -82,7 +82,6 @@
 			if (!toMoveId) return;
 
 			store.moveCommit(toMoveId, pos);
-			selectedCommitsIds = [];
 		}
 	};
 
