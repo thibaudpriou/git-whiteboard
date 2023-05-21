@@ -11,8 +11,11 @@
 		getCommitById,
 		getGridFromPosition,
 		getPositionFromGrid,
-		hydrateParentsCommitsCb
+		hydrateParentsCommitsCb,
+		isAllowedAction
 	} from '$lib/utils';
+	import { ActionType } from '$lib/constants';
+	import ActionBanner from '$lib/components/ActionBanner.svelte';
 
 	/**
 	 * TODOLIST
@@ -56,7 +59,11 @@
 		const { clientX: x, clientY: y } = ev;
 		const pos = pos2grid({ x, y });
 
-		if (editMode === 'c') {
+		if (ActionType.RENAME === editMode) {
+			displayLabelInputs(selectedCommitsIds);
+		}
+
+		if (ActionType.COMMIT === editMode) {
 			if (selectedCommitsIds.length == 0) {
 				console.log('Failure: cannot create commit w/o parent');
 				return;
@@ -74,10 +81,7 @@
 			return;
 		}
 
-		if (editMode === 'n') {
-			displayLabelInputs(selectedCommitsIds);
-		}
-		if (editMode === 'm') {
+		if (ActionType.MOVE === editMode) {
 			const toMoveId = selectedCommitsIds.at(0);
 			if (!toMoveId) return;
 
@@ -85,17 +89,19 @@
 		}
 	};
 
-	let editMode: string | undefined;
+	let editMode: ActionType | undefined;
 	const handleKeydown = (ev: KeyboardEvent) => {
 		if (ev.repeat) return;
 
-		if (ev.key === 'Escape') {
+		if (ActionType.CANCEL === ev.key) {
 			selectedCommitsIds = [];
 			commitsIdsToLabel = [];
 			return;
 		}
 
-		editMode = ev.key;
+		if (isAllowedAction(ev.key)) {
+			editMode = ev.key;
+		}
 	};
 
 	const handleKeyup = (ev: KeyboardEvent) => {
@@ -103,10 +109,10 @@
 
 		if (ev.key === 'n') {
 			displayLabelInputs(selectedCommitsIds);
-			return
+			return;
 		}
 
-		selectedCommitsIds = []
+		selectedCommitsIds = [];
 	};
 
 	let selectedCommitsIds: TCommit['id'][] = [];
@@ -129,18 +135,9 @@
 
 <svelte:document on:keydown={handleKeydown} on:keyup={handleKeyup} />
 
-{#if editMode}
-	<p class="mode-info">
-		Mode: <span>
-			{#if editMode === 'c'}
-				commit creation
-			{/if}
-			{#if editMode === 'm'}
-				reposition
-			{/if}
-		</span>
-	</p>
-{/if}
+<span class="mode-info">
+	<ActionBanner action={editMode} />
+</span>
 <Canvas
 	width={innerWidth}
 	height={innerHeight}
