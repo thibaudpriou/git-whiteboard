@@ -13,6 +13,9 @@
 			{#if action === ActionType.MOVE}
 				reposition
 			{/if}
+			{#if action === ActionType.RENAME}
+				rename
+			{/if}
 		</span>
 	</p>
 {/if}

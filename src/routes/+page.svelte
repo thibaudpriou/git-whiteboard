@@ -100,6 +100,14 @@
 		if (ActionType.CANCEL === key) {
 			selectedCommitsIds = [];
 			commitsIdsToLabel = [];
+			editMode = undefined;
+			return;
+		}
+
+		if (commitsIdsToLabel.length) {
+			/**
+			 * don't listen to users input when entering text
+			 */
 			return;
 		}
 
@@ -119,6 +127,10 @@
 		}
 
 		editMode = key;
+
+		if (ActionType.RENAME === key) {
+			selectedCommitsIds = [];
+		}
 	};
 
 	let selectedCommitsIds: Commit['id'][] = [];
@@ -131,6 +143,10 @@
 			newSelectedCommits.push(clicked.id);
 		}
 		selectedCommitsIds = newSelectedCommits;
+
+		if (ActionType.RENAME === editMode) {
+			displayLabelInputs(selectedCommitsIds);
+		}
 	};
 
 	$: commitsWithParents = $store.commits.map((c) => hydrateParentsCommitsCb($store.commits, c));
