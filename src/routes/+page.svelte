@@ -20,15 +20,6 @@
 	import { ActionType } from '$lib/constants';
 	import ActionBanner from '$lib/components/ActionBanner.svelte';
 
-	/**
-	 * TODOLIST
-	 * - create WorkingDirChanges component
-	 * - rebase action
-	 * - cherry-pick
-	 *
-	 * - split this component in 2: 1 for UI (grid, etc) and 1 for controls
-	 */
-
 	let innerHeight = 0,
 		innerWidth = 0;
 

@@ -1,7 +1,17 @@
 {
-	"name": "git-anims",
-	"version": "0.0.1",
+	"name": "git-whiteboard",
+	"description": "create and interact with a graph drawn with HTML canvas",
+	"version": "1.0.0",
 	"private": true,
+	"license": "MIT",
+	"author": {
+		"name": "Thibaud Priou",
+		"email": "thibaud.priou@gmail.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/thibaudpriou/git-whiteboard.git"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
