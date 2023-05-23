@@ -1,6 +1,6 @@
 export enum ActionType {
 	CANCEL = 'Escape',
-	BEAUTIFY = 'y',
+	BEAUTIFY = 'b',
 	HELP = 'h',
 
 	// with toggle behavior

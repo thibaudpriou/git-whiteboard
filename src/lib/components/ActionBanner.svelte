@@ -13,6 +13,7 @@
 				<h4>General</h4>
 				<p>Display help: press "<strong>h</strong>"</p>
 				<p>Change point of view: use <strong>arrow keys</strong>. Press shift alongside to zoom.</p>
+				<p>Beautify graph: press "<strong>b</strong>".</p>
 			</section>
 			<hr />
 			<section>
