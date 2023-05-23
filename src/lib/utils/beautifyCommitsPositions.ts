@@ -1,7 +1,5 @@
-import type { Commit } from '../../types';
+import type { Commit, CommitMap, ChildrenMap } from '../../types';
 import { type DepthMap, groupByDepth } from './groupByDepth';
-import { type ChildrenMap, groupByParent } from './groupByParent';
-import { type CommitMap, keyById } from './keyById';
 
 /**
  * Return the first parent commit of given commit
@@ -71,7 +69,7 @@ const fixCommitsDepth = (
  * Algo: for a given depth, each commit's order respect: parent.pos.x <= x
  * - commits are "grouped" by their 1st parent
  * - merge commits come last in a "group"
- * -  
+ * -
  *
  * @param commitMap
  * @param depthMap
@@ -134,30 +132,32 @@ const fixCommitsOrder = (commitMap: CommitMap, depthMap: DepthMap, depth = 0): C
 /**
  * Change commits positions to reorder their display
  *
- * @param commits
- * @returns commits
+ * @param idMap
+ * @param childrenMap
+ * @returns a new map
  */
-export const beautifyCommitsPositions = (commits: Commit[]): Commit[] => {
-	const root = commits.find((c) => c.parents === null);
-	if (!root) return commits; // shouldn't happen
+export const beautifyCommitsPositions = (idMap: CommitMap, childrenMap: ChildrenMap): CommitMap => {
+	const root = Object.values(idMap).find((c) => c.parents === null);
+	if (!root) return idMap; // shouldn't happen
 
 	// reset pos
-	const resettedCommits = commits.map((c) => ({
-		...c,
-		pos: root.pos
-	}));
-
-	const parentMap = groupByParent(resettedCommits);
-	const commitMap = keyById(resettedCommits);
+	const resettedPosMap = Object.values(idMap).reduce(
+		(map, c) => ({
+			...map,
+			[c.id]: {
+				...c,
+				pos: root.pos
+			}
+		}),
+		{}
+	);
 
 	/** commits with correct pos.y */
-	const commitMapY = fixCommitsDepth(commitMap, parentMap, [root]);
-	
+	const commitMapY = fixCommitsDepth(resettedPosMap, childrenMap, [root]);
+
 	const commitsY = Object.values(commitMapY);
 	const depthMap = groupByDepth(commitsY);
 
 	/** commits with correct pos.y & pos.x */
-	const commitMapXY = fixCommitsOrder(commitMapY, depthMap, 0);
-	
-	return Object.values(commitMapXY);
+	return fixCommitsOrder(commitMapY, depthMap, 0);
 };

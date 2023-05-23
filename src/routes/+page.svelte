@@ -5,13 +5,12 @@
 	import type { Commit, Pos } from '../types';
 
 	import LabelInput from '$lib/components/LabelInput.svelte';
-	import { store } from '$lib/store';
+	import { commits, commitList } from '$lib/stores';
 	import {
 		compteGridSize,
-		getCommitById,
 		getGridFromPosition,
+		getObjectProperty,
 		getPositionFromGrid,
-		hydrateParentsCommitsCb,
 		isAllowedAction,
 		keyActionToCameraMotion,
 		moveCamera,
@@ -43,7 +42,7 @@
 	const handleLabelSubmit = (commit: Commit, ev: CustomEvent<string>) => {
 		if (!commit) return;
 
-		store.renameCommit(commit, ev.detail);
+		commits.renameCommit(commit, ev.detail);
 		commitsIdsToLabel = removeArrayEl(commitsIdsToLabel, commit.id);
 		selectedCommitsIds = removeArrayEl(selectedCommitsIds, commit.id);
 	};
@@ -63,14 +62,14 @@
 			if (!parents.length) return;
 
 			const newCommit = { pos, parents } as Commit;
-			
-			const prevLastCommit = $store.commits.at(-1)!;
-			store.addCommit(newCommit);
-			const lastCommit = $store.commits.at(-1)!;
 
-			if (prevLastCommit.id !== lastCommit.id) {
+			const prevLastCommitId = Object.keys($commits.idMap).at(-1)!; // last added key
+			commits.addCommit(newCommit);
+			const lastCommitId = Object.keys($commits.idMap).at(-1)!; // last added key
+
+			if (prevLastCommitId !== lastCommitId) {
 				// a new commit was created
-				selectedCommitsIds = [lastCommit.id]; // to chain creation
+				selectedCommitsIds = [lastCommitId]; // to chain creation
 			}
 			return;
 		}
@@ -79,7 +78,7 @@
 			const toMoveId = selectedCommitsIds.at(0);
 			if (!toMoveId) return;
 
-			store.moveCommit(toMoveId, pos);
+			commits.moveCommit(toMoveId, pos);
 		}
 	};
 
@@ -97,7 +96,7 @@
 		}
 
 		if (ActionType.BEAUTIFY === key) {
-			store.beautify();
+			commits.beautify();
 			return;
 		}
 
@@ -146,8 +145,7 @@
 		}
 	};
 
-	$: commitsWithParents = $store.commits.map((c) => hydrateParentsCommitsCb($store.commits, c));
-	$: commitsToLabel = commitsIdsToLabel.map((id) => getCommitById(commitsWithParents, id)!);
+	$: commitsToLabel = commitsIdsToLabel.map((id) => getObjectProperty($commits.idMap, id)!);
 </script>
 
 <svelte:window bind:innerWidth bind:innerHeight />
@@ -166,13 +164,13 @@
 		layerEvents={true}
 	>
 		<!-- display links underneath commits  -->
-		{#each commitsWithParents as commit}
-			{#each commit.parentCommits as parent}
+		{#each $commitList as commit}
+			{#each commit.parentsCommits ?? [] as parent}
 				<CommitLinkLayer startPoint={grid2pos(parent.pos)} endPoint={grid2pos(commit.pos)} />
 			{/each}
 		{/each}
 
-		{#each commitsWithParents as commit}
+		{#each $commitList as commit}
 			<CommitLayer
 				pos={grid2pos(commit.pos)}
 				label={commit.name}
