@@ -4,6 +4,7 @@
 	"version": "1.0.0",
 	"private": true,
 	"license": "MIT",
+	"homepage": "http://musicscales.priou.me",
 	"author": {
 		"name": "Thibaud Priou",
 		"email": "thibaud.priou@gmail.com"
@@ -22,7 +23,7 @@
 		"format": "prettier --plugin-search-dir . --write ."
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-auto": "^2.0.0",
+		"@sveltejs/adapter-static": "^2.0.2",
 		"@sveltejs/kit": "^1.5.0",
 		"@types/uuid": "^9.0.1",
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
