@@ -22,8 +22,8 @@
 				<ul>
 					<li>
 						<p>
-							"<strong>c</strong>" mode: to create commits. <br />Select up to 2 commits then click on
-							target position.
+							"<strong>c</strong>" mode: to create commits. <br />Select up to 2 commits then click
+							on target position.
 						</p>
 					</li>
 					<li>
@@ -36,6 +36,11 @@
 						<p>
 							"<strong>p</strong>" mode: to re-position commits. <br />Select commit then click on
 							target position.
+						</p>
+					</li>
+					<li>
+						<p>
+							"<strong>d</strong>" mode: to delete commits. <br />Select commit.
 						</p>
 					</li>
 				</ul>
@@ -52,6 +57,9 @@
 				{/if}
 				{#if action === ActionType.RENAME}
 					rename
+				{/if}
+				{#if action === ActionType.DELETE}
+					delete
 				{/if}
 			</span>
 		</p>

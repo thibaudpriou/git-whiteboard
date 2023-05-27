@@ -23,7 +23,6 @@ yarn build
 ## TODO list
 
 - refactor +page.selte view
-- implement a "delete" action mode
 - implement a "rebase" action mode
 - implement a "cherry-pick" action mode
 - define actions presets to show recurrent Git manipulations: /learn route

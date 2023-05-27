@@ -74,6 +74,16 @@
 			return;
 		}
 
+		if (ActionType.DELETE === editMode) {
+			const toDel = selectedCommitsIds.at(0);
+			if (!toDel) return;
+
+			commits.delete(toDel);
+
+			selectedCommitsIds = [];
+			return;
+		}
+
 		if (ActionType.POSITION === editMode) {
 			const toMoveId = selectedCommitsIds.at(0);
 			if (!toMoveId) return;
@@ -164,13 +174,13 @@
 		layerEvents={true}
 	>
 		<!-- display links underneath commits  -->
-		{#each $commitList as commit}
-			{#each commit.parentsCommits ?? [] as parent}
+		{#each $commitList as commit (commit.id)}
+			{#each commit.parentsCommits ?? [] as parent (parent)}
 				<CommitLinkLayer startPoint={grid2pos(parent.pos)} endPoint={grid2pos(commit.pos)} />
 			{/each}
 		{/each}
 
-		{#each $commitList as commit}
+		{#each $commitList as commit (commit.id)}
 			<CommitLayer
 				pos={grid2pos(commit.pos)}
 				label={commit.name}

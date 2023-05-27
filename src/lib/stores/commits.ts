@@ -11,17 +11,17 @@ interface CommitsStore {
 type UpdateFn = (this: void, updater: Updater<CommitsStore>) => void;
 
 const addCommit = (update: UpdateFn, commit: Pick<Commit, 'pos' | 'parents'>) => {
-	return update((r) => {
-		const doesPosExists = Object.values(r.idMap).some(
+	return update((s) => {
+		const doesPosExists = Object.values(s.idMap).some(
 			(c) => c.pos.x === commit.pos.x && c.pos.y === commit.pos.y
 		);
 
-		if (doesPosExists) return r;
+		if (doesPosExists) return s;
 
 		const id = uuidv4();
 
 		const idMap = {
-			...r.idMap,
+			...s.idMap,
 			[id]: {
 				...commit,
 				id
@@ -35,10 +35,10 @@ const addCommit = (update: UpdateFn, commit: Pick<Commit, 'pos' | 'parents'>) =>
 				...map,
 				[parentId]: [...pChildren, { id, branch: idx }]
 			};
-		}, r.childrenMap);
+		}, s.childrenMap);
 
 		return {
-			...r,
+			...s,
 			idMap,
 			childrenMap
 		};
@@ -46,18 +46,60 @@ const addCommit = (update: UpdateFn, commit: Pick<Commit, 'pos' | 'parents'>) =>
 };
 
 const beautify = (update: UpdateFn) => {
-	return update((r) => {
+	return update((s) => {
 		return {
-			...r,
-			idMap: beautifyCommitsPositions(r.idMap, r.childrenMap)
+			...s,
+			idMap: beautifyCommitsPositions(s.idMap, s.childrenMap)
+		};
+	});
+};
+
+const deleteCommit = (update: UpdateFn, id: Commit['id']) => {
+	return update((s) => {
+		const idMap = { ...s.idMap };
+		const childrenMap = { ...s.childrenMap };
+
+		const commit = getObjectProperty(idMap, id);
+
+		// del commit
+		delete idMap[id];
+
+		// del parent->commit
+		commit?.parents?.forEach((p) => {
+			const parentChildren = getObjectProperty(childrenMap, p);
+			if (!parentChildren) return;
+
+			childrenMap[p] = parentChildren.filter((c) => c.id === id);
+		});
+
+		// del commit->children
+		const children = getObjectProperty(childrenMap, id);
+		children?.forEach((c) => {
+			const childCommit = getObjectProperty(idMap, c.id);
+			if (!childCommit) return;
+
+			const childParents =
+				childCommit.parents && (childCommit.parents.filter((p) => p !== id) as Commit['parents']);
+
+			idMap[c.id] = {
+				...childCommit,
+				parents: childParents
+			};
+		});
+		delete childrenMap[id];
+
+		return {
+			...s,
+			idMap,
+			childrenMap
 		};
 	});
 };
 
 const moveCommit = (update: UpdateFn, id: Commit['id'], pos: Commit['pos']) => {
-	return update((r) => {
-		const commit = getObjectProperty(r.idMap, id);
-		if (!commit) return r;
+	return update((s) => {
+		const commit = getObjectProperty(s.idMap, id);
+		if (!commit) return s;
 
 		const translation = {
 			x: pos.x - commit.pos.x,
@@ -71,11 +113,11 @@ const moveCommit = (update: UpdateFn, id: Commit['id'], pos: Commit['pos']) => {
 			}
 		});
 
-		const childrenIds = getAllFirstChildren(r.childrenMap, [id]);
+		const childrenIds = getAllFirstChildren(s.childrenMap, [id]);
 		const toTranslate = [id, ...childrenIds];
 
 		return {
-			...r,
+			...s,
 			idMap: toTranslate.reduce((map, i) => {
 				const c = getObjectProperty(map, i);
 				if (!c) return map; // shouldn't happen
@@ -84,20 +126,20 @@ const moveCommit = (update: UpdateFn, id: Commit['id'], pos: Commit['pos']) => {
 					...map,
 					[i]: translate(c)
 				};
-			}, r.idMap)
+			}, s.idMap)
 		};
 	});
 };
 
 const renameCommit = (update: UpdateFn, commit: Commit, name: string) => {
-	return update((r) => {
-		const found = getObjectProperty(r.idMap, commit.id);
-		if (!found) return r;
+	return update((s) => {
+		const found = getObjectProperty(s.idMap, commit.id);
+		if (!found) return s;
 
 		return {
-			...r,
+			...s,
 			idMap: {
-				...r.idMap,
+				...s.idMap,
 				[found.id]: {
 					...found,
 					name
@@ -127,6 +169,7 @@ const createCommitsStore = () => {
 		subscribe,
 		addCommit: addCommit.bind(null, update),
 		beautify: beautify.bind(null, update),
+		delete: deleteCommit.bind(null, update),
 		moveCommit: moveCommit.bind(null, update),
 		renameCommit: renameCommit.bind(null, update)
 	};
