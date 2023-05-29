@@ -164,7 +164,7 @@
 	<Canvas width={innerWidth} height={innerHeight} on:click={handleCanvasClick} layerEvents={true}>
 		<!-- display links underneath commits  -->
 		{#each $commitList as commit (commit.id)}
-			{#each commit.parentsCommits ?? [] as parent (parent)}
+			{#each commit.parentsCommits ?? [] as parent}
 				<CommitLinkLayer startPoint={grid2pos(parent.pos)} endPoint={grid2pos(commit.pos)} />
 			{/each}
 		{/each}
