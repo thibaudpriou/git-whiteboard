@@ -136,6 +136,11 @@
 			return commits.delete(clicked.id);
 		}
 
+		if (ActionType.POSITION === editMode) {
+			selectedCommitsIds = [clicked.id];
+			return;
+		}
+
 		const newSelectedCommits = selectedCommitsIds.filter((id) => id !== clicked.id);
 		if (selectedCommitsIds.length === newSelectedCommits.length) {
 			// not already selected
