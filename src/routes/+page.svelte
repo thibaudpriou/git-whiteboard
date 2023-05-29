@@ -18,6 +18,7 @@
 	} from '$lib/utils';
 	import { ActionType } from '$lib/constants';
 	import ActionBanner from '$lib/components/ActionBanner.svelte';
+	import type { LayerEventDetail } from 'svelte-canvas/components/layerEvent';
 
 	let innerHeight = 0,
 		innerWidth = 0;
@@ -53,10 +54,6 @@
 		const { clientX: x, clientY: y } = ev;
 		const pos = pos2grid({ x, y });
 
-		if (ActionType.RENAME === editMode) {
-			displayLabelInputs(selectedCommitsIds);
-		}
-
 		if (ActionType.COMMIT === editMode) {
 			const parents = selectedCommitsIds.slice(0, 2);
 			if (!parents.length) return;
@@ -71,16 +68,6 @@
 				// a new commit was created
 				selectedCommitsIds = [lastCommitId]; // to chain creation
 			}
-			return;
-		}
-
-		if (ActionType.DELETE === editMode) {
-			const toDel = selectedCommitsIds.at(0);
-			if (!toDel) return;
-
-			commits.delete(toDel);
-
-			selectedCommitsIds = [];
 			return;
 		}
 
@@ -134,18 +121,25 @@
 
 		editMode = key;
 
+		// ? TODO reset selection for every mode changes
 		if (ActionType.RENAME === key) {
 			selectedCommitsIds = [];
 		}
 	};
 
 	let selectedCommitsIds: Commit['id'][] = [];
-	const handleCommitClick = (clicked: Commit) => {
-		// remove if exists
-		const newSelectedCommits = selectedCommitsIds.filter((id) => id !== clicked.id);
+	const handleCommitClick = (clicked: Commit, ev: unknown) => {
+		const {originalEvent} = (ev as CustomEvent<LayerEventDetail>).detail;
+		originalEvent.stopImmediatePropagation(); // don't fire canvas on:click
 
+
+		if (ActionType.DELETE === editMode) {
+			return commits.delete(clicked.id);
+		}
+
+		const newSelectedCommits = selectedCommitsIds.filter((id) => id !== clicked.id);
 		if (selectedCommitsIds.length === newSelectedCommits.length) {
-			// none found
+			// not already selected
 			newSelectedCommits.push(clicked.id);
 		}
 		selectedCommitsIds = newSelectedCommits;
@@ -167,12 +161,7 @@
 </span>
 
 {#if innerWidth && innerHeight}
-	<Canvas
-		width={innerWidth}
-		height={innerHeight}
-		on:click={editMode !== undefined ? handleCanvasClick : undefined}
-		layerEvents={true}
-	>
+	<Canvas width={innerWidth} height={innerHeight} on:click={handleCanvasClick} layerEvents={true}>
 		<!-- display links underneath commits  -->
 		{#each $commitList as commit (commit.id)}
 			{#each commit.parentsCommits ?? [] as parent (parent)}
@@ -185,7 +174,7 @@
 				pos={grid2pos(commit.pos)}
 				label={commit.name}
 				radius={gridSize / 4}
-				on:click={() => handleCommitClick(commit)}
+				on:click={ev => handleCommitClick(commit, ev)}
 				selected={selectedCommitsIds.some((id) => id === commit.id)}
 			/>
 		{/each}
