@@ -129,9 +129,8 @@
 
 	let selectedCommitsIds: Commit['id'][] = [];
 	const handleCommitClick = (clicked: Commit, ev: unknown) => {
-		const {originalEvent} = (ev as CustomEvent<LayerEventDetail>).detail;
+		const { originalEvent } = (ev as CustomEvent<LayerEventDetail>).detail;
 		originalEvent.stopImmediatePropagation(); // don't fire canvas on:click
-
 
 		if (ActionType.DELETE === editMode) {
 			return commits.delete(clicked.id);
@@ -174,7 +173,7 @@
 				pos={grid2pos(commit.pos)}
 				label={commit.name}
 				radius={gridSize / 4}
-				on:click={ev => handleCommitClick(commit, ev)}
+				on:click={(ev) => handleCommitClick(commit, ev)}
 				selected={selectedCommitsIds.some((id) => id === commit.id)}
 			/>
 		{/each}

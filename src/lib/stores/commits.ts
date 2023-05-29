@@ -40,7 +40,7 @@ const addCommit = (update: UpdateFn, commit: Pick<Commit, 'pos' | 'parents'>) =>
 		return {
 			...s,
 			idMap,
-			childrenMap
+			childrenMap: childrenMap ?? s.childrenMap
 		};
 	});
 };

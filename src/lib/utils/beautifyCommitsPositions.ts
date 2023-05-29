@@ -1,4 +1,5 @@
 import type { Commit, CommitMap, ChildrenMap } from '../../types';
+import { getObjectProperty } from './getObjectProperty';
 import { type DepthMap, groupByDepth } from './groupByDepth';
 
 /**
@@ -40,13 +41,15 @@ const fixCommitsDepth = (
 	if (!parents.length) return commitMap; // recursiv end
 
 	return parents.reduce((map, parent) => {
-		const childrenIds = childrenMap[parent.id] ?? [];
+		const children = getObjectProperty(childrenMap, parent.id) ?? [];
 
-		const newCommitMap = childrenIds.reduce((map2, id) => {
-			const c = map2[id];
+		const newCommitMap = children.reduce((map2, child) => {
+			const c = getObjectProperty(map2, child.id);
+			if (!c) throw new Error('children not found')
+
 			return {
 				...map2,
-				[id]: {
+				[child.id]: {
 					...c,
 					pos: {
 						...c.pos,
@@ -56,10 +59,11 @@ const fixCommitsDepth = (
 			};
 		}, map);
 
-		const children = childrenIds.map((i) => newCommitMap[i]);
+		// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+		const newChildren = children.map((c) => getObjectProperty(newCommitMap, c.id)!);
 
 		// apply to sub-children
-		return fixCommitsDepth(newCommitMap, childrenMap, children);
+		return fixCommitsDepth(newCommitMap, childrenMap, newChildren);
 	}, commitMap);
 };
 
