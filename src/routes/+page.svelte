@@ -141,6 +141,10 @@
 			return;
 		}
 
+		if (ActionType.COMMIT === editMode && selectedCommitsIds.length >= 2) {
+			return;
+		}
+
 		const newSelectedCommits = selectedCommitsIds.filter((id) => id !== clicked.id);
 		if (selectedCommitsIds.length === newSelectedCommits.length) {
 			// not already selected
