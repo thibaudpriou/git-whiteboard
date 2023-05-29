@@ -7,5 +7,6 @@ export enum ActionType {
 	RENAME = 'n',
 	POSITION = 'p',
 	COMMIT = 'c',
-	DELETE = 'd'
+	DELETE = 'd',
+	UNBASE = 'u'
 }

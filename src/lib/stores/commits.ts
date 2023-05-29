@@ -149,6 +149,33 @@ const renameCommit = (update: UpdateFn, commit: Commit, name: string) => {
 	});
 };
 
+const removeParents = (update: UpdateFn, id: Commit['id']) => {
+	return update((s) => {
+		const found = getObjectProperty(s.idMap, id);
+		if (!found) return s;
+
+		const newIdMap = { ...s.idMap };
+		newIdMap[id] = {
+			...found,
+			parents: null
+		};
+
+		const newChildrenMap = { ...s.childrenMap };
+		found.parents?.forEach((p) => {
+			const parent = getObjectProperty(newChildrenMap, id);
+			if (!parent) throw new Error('parent not found in children map');
+
+			newChildrenMap[p] = s.childrenMap[p].filter((child) => child.id !== id);
+		});
+
+		return {
+			...s,
+			idMap: newIdMap,
+			childrenMap: newChildrenMap
+		};
+	});
+};
+
 const createCommitsStore = () => {
 	const rootId = uuidv4();
 	const { subscribe, update } = writable<CommitsStore>({
@@ -171,6 +198,7 @@ const createCommitsStore = () => {
 		beautify: beautify.bind(null, update),
 		delete: deleteCommit.bind(null, update),
 		moveCommit: moveCommit.bind(null, update),
+		removeParents: removeParents.bind(null, update),
 		renameCommit: renameCommit.bind(null, update)
 	};
 };

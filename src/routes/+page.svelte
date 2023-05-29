@@ -136,6 +136,10 @@
 			return commits.delete(clicked.id);
 		}
 
+		if (ActionType.UNBASE === editMode) {
+			return commits.removeParents(clicked.id);
+		}
+
 		if (ActionType.POSITION === editMode) {
 			selectedCommitsIds = [clicked.id];
 			return;

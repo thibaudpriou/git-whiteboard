@@ -43,6 +43,11 @@
 							"<strong>d</strong>" mode: to delete commits. <br />Select commit.
 						</p>
 					</li>
+					<li>
+						<p>
+							"<strong>u</strong>" mode: to "unbase" commits, i.e. to remove their parents. <br />Select commit.
+						</p>
+					</li>
 				</ul>
 			</section>
 		</div>
@@ -60,6 +65,9 @@
 				{/if}
 				{#if action === ActionType.DELETE}
 					delete
+				{/if}
+				{#if action === ActionType.UNBASE}
+					unbase
 				{/if}
 			</span>
 		</p>
