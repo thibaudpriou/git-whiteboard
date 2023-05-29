@@ -48,6 +48,11 @@
 							"<strong>u</strong>" mode: to "unbase" commits, i.e. to remove their parents. <br />Select commit.
 						</p>
 					</li>
+					<li>
+						<p>
+							"<strong>r</strong>" mode: to "rebase" commits, i.e. change their parents. <br />Select commit then click on new parent.
+						</p>
+					</li>
 				</ul>
 			</section>
 		</div>
@@ -68,6 +73,9 @@
 				{/if}
 				{#if action === ActionType.UNBASE}
 					unbase
+				{/if}
+				{#if action === ActionType.REBASE}
+					rebase
 				{/if}
 			</span>
 		</p>

@@ -8,5 +8,6 @@ export enum ActionType {
 	POSITION = 'p',
 	COMMIT = 'c',
 	DELETE = 'd',
-	UNBASE = 'u'
+	UNBASE = 'u',
+	REBASE = 'r'
 }

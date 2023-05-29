@@ -154,24 +154,55 @@ const removeParents = (update: UpdateFn, id: Commit['id']) => {
 		const found = getObjectProperty(s.idMap, id);
 		if (!found) return s;
 
-		const newIdMap = { ...s.idMap };
-		newIdMap[id] = {
+		const idMap = { ...s.idMap };
+		idMap[id] = {
 			...found,
 			parents: null
 		};
 
-		const newChildrenMap = { ...s.childrenMap };
+		const childrenMap = { ...s.childrenMap };
 		found.parents?.forEach((p) => {
-			const parent = getObjectProperty(newChildrenMap, id);
+			const parent = getObjectProperty(childrenMap, id);
 			if (!parent) throw new Error('parent not found in children map');
 
-			newChildrenMap[p] = s.childrenMap[p].filter((child) => child.id !== id);
+			childrenMap[p] = s.childrenMap[p].filter((child) => child.id !== id);
 		});
 
 		return {
 			...s,
-			idMap: newIdMap,
-			childrenMap: newChildrenMap
+			idMap,
+			childrenMap: childrenMap
+		};
+	});
+};
+
+const setParent = (update: UpdateFn, id: Commit['id'], parentId: Commit['id']) => {
+	return update((s) => {
+		const commit = getObjectProperty(s.idMap, id);
+		if (!commit) return s;
+
+		const idMap = {
+			...s.idMap,
+			[id]: {
+				...commit,
+				parents: [parentId]
+			}
+		};
+
+		const childrenMap = { ...s.childrenMap };
+		commit.parents?.forEach((p) => {
+			const parent = getObjectProperty(childrenMap, id);
+			if (!parent) throw new Error('parent not found in children map');
+
+			childrenMap[p] = s.childrenMap[p].filter((child) => child.id !== id);
+		});
+		const parentChildren = getObjectProperty(s.childrenMap, parentId);
+		childrenMap[parentId] = [...(parentChildren ?? []), { id: parentId, branch: 0 }];
+
+		return {
+			...s,
+			idMap,
+			childrenMap: childrenMap ?? s.childrenMap
 		};
 	});
 };
@@ -199,7 +230,8 @@ const createCommitsStore = () => {
 		delete: deleteCommit.bind(null, update),
 		moveCommit: moveCommit.bind(null, update),
 		removeParents: removeParents.bind(null, update),
-		renameCommit: renameCommit.bind(null, update)
+		renameCommit: renameCommit.bind(null, update),
+		setParent: setParent.bind(null, update)
 	};
 };
 

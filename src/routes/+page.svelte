@@ -140,6 +140,11 @@
 			return commits.removeParents(clicked.id);
 		}
 
+		if (ActionType.REBASE === editMode && selectedCommitsIds.length === 1) {
+			// TODO perform a real rebase (select 2 or 3 commits, and checks that it's possible, with a nice animation)
+			return commits.setParent(selectedCommitsIds[0], clicked.id);
+		}
+
 		if (ActionType.POSITION === editMode) {
 			selectedCommitsIds = [clicked.id];
 			return;
