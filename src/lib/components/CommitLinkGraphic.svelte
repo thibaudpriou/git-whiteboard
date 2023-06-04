@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { Layer, type Render } from 'svelte-canvas';
 	import type { Pos } from '../../types';
 	import { tweenedPos } from '$lib/motions';
 
@@ -15,17 +14,11 @@
 		animatedStart.set(startPoint)
 		animatedEnd.set(endPoint)
 	}
-
-	let render: Render;
-	$: render = ({ context }) => {
-		context.beginPath();
-		context.moveTo($animatedStart.x, $animatedStart.y);
-		context.lineTo($animatedEnd.x, $animatedEnd.y);
-		context.lineWidth = width;
-		context.strokeStyle = `rgba(0, 0, 255)`;
-        context.setLineDash([]);
-		context.stroke();
-	};
 </script>
-	
-<Layer {render} />
+
+<line class="commit-link" x1={$animatedStart.x} y1={$animatedStart.y} x2={$animatedEnd.x} y2={$animatedEnd.y} stroke-width={width} />
+<style>
+	.commit-link {
+		stroke:  rgba(0, 0, 255);
+	}
+</style>

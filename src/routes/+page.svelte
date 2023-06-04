@@ -1,7 +1,6 @@
 <script lang="ts">
-	import CommitLayer from '$lib/components/CommitLayer.svelte';
-	import CommitLinkLayer from '$lib/components/CommitLinkLayer.svelte';
-	import { Canvas } from 'svelte-canvas';
+	import CommitGraphic from '$lib/components/CommitGraphic.svelte';
+	import CommitLinkGraphic from '$lib/components/CommitLinkGraphic.svelte';
 	import type { Commit, Pos } from '../types';
 
 	import LabelInput from '$lib/components/LabelInput.svelte';
@@ -18,7 +17,6 @@
 	} from '$lib/utils';
 	import { ActionType } from '$lib/constants';
 	import ActionBanner from '$lib/components/ActionBanner.svelte';
-	import type { LayerEventDetail } from 'svelte-canvas/components/layerEvent';
 
 	let innerHeight = 0,
 		innerWidth = 0;
@@ -46,37 +44,6 @@
 		commits.renameCommit(commit, ev.detail);
 		commitsIdsToLabel = removeArrayEl(commitsIdsToLabel, commit.id);
 		selectedCommitsIds = removeArrayEl(selectedCommitsIds, commit.id);
-	};
-
-	$: handleCanvasClick = (ev: MouseEvent) => {
-		if (editMode === undefined) return;
-
-		const { clientX: x, clientY: y } = ev;
-		const pos = pos2grid({ x, y });
-
-		if (ActionType.COMMIT === editMode) {
-			const parents = selectedCommitsIds.slice(0, 2);
-			if (!parents.length) return;
-
-			const newCommit = { pos, parents } as Commit;
-
-			const prevLastCommitId = Object.keys($commits.idMap).at(-1)!; // last added key
-			commits.addCommit(newCommit);
-			const lastCommitId = Object.keys($commits.idMap).at(-1)!; // last added key
-
-			if (prevLastCommitId !== lastCommitId) {
-				// a new commit was created
-				selectedCommitsIds = [lastCommitId]; // to chain creation
-			}
-			return;
-		}
-
-		if (ActionType.POSITION === editMode) {
-			const toMoveId = selectedCommitsIds.at(0);
-			if (!toMoveId) return;
-
-			commits.moveCommit(toMoveId, pos);
-		}
 	};
 
 	let editMode: ActionType | undefined;
@@ -127,11 +94,39 @@
 		}
 	};
 
-	let selectedCommitsIds: Commit['id'][] = [];
-	const handleCommitClick = (clicked: Commit, ev: unknown) => {
-		const { originalEvent } = (ev as CustomEvent<LayerEventDetail>).detail;
-		originalEvent.stopImmediatePropagation(); // don't fire canvas on:click
+	$: handleSVGClick = (ev: MouseEvent) => {
+		if (editMode === undefined) return;
 
+		const { clientX: x, clientY: y } = ev;
+		const pos = pos2grid({ x, y });
+
+		if (ActionType.COMMIT === editMode) {
+			const parents = selectedCommitsIds.slice(0, 2);
+			if (!parents.length) return;
+
+			const newCommit = { pos, parents } as Commit;
+
+			const prevLastCommitId = Object.keys($commits.idMap).at(-1)!; // last added key
+			commits.addCommit(newCommit);
+			const lastCommitId = Object.keys($commits.idMap).at(-1)!; // last added key
+
+			if (prevLastCommitId !== lastCommitId) {
+				// a new commit was created
+				selectedCommitsIds = [lastCommitId]; // to chain creation
+			}
+			return;
+		}
+
+		if (ActionType.POSITION === editMode) {
+			const toMoveId = selectedCommitsIds.at(0);
+			if (!toMoveId) return;
+
+			commits.moveCommit(toMoveId, pos);
+		}
+	};
+
+	let selectedCommitsIds: Commit['id'][] = [];
+	const handleCommitClick = (clicked: Commit) => {
 		if (ActionType.DELETE === editMode) {
 			return commits.delete(clicked.id);
 		}
@@ -178,24 +173,25 @@
 </span>
 
 {#if innerWidth && innerHeight}
-	<Canvas width={innerWidth} height={innerHeight} on:click={handleCanvasClick} layerEvents={true}>
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
+	<svg width={innerWidth} height={innerHeight} on:click={handleSVGClick}>
 		<!-- display links underneath commits  -->
 		{#each $commitList as commit (commit.id)}
 			{#each commit.parentsCommits ?? [] as parent}
-				<CommitLinkLayer startPoint={grid2pos(parent.pos)} endPoint={grid2pos(commit.pos)} />
+				<CommitLinkGraphic startPoint={grid2pos(parent.pos)} endPoint={grid2pos(commit.pos)} />
 			{/each}
 		{/each}
 
 		{#each $commitList as commit (commit.id)}
-			<CommitLayer
+			<CommitGraphic
 				pos={grid2pos(commit.pos)}
 				label={commit.name}
 				radius={gridSize / 4}
-				on:click={(ev) => handleCommitClick(commit, ev)}
+				on:click={() => handleCommitClick(commit)}
 				selected={selectedCommitsIds.some((id) => id === commit.id)}
 			/>
 		{/each}
-	</Canvas>
+	</svg>
 {/if}
 
 {#each commitsToLabel as c}
