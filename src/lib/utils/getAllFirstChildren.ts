@@ -1,4 +1,4 @@
-import type { Child, ChildrenMap, Commit } from '../../types';
+import type { Child, ChildrenMap, Commit } from '$types';
 
 import { getObjectProperty } from './getObjectProperty';
 

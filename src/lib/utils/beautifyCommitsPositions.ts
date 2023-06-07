@@ -1,4 +1,4 @@
-import type { Commit, CommitMap, ChildrenMap } from '../../types';
+import type { Commit, CommitMap, ChildrenMap } from '$types';
 import { getObjectProperty } from './getObjectProperty';
 import { type DepthMap, groupByDepth } from './groupByDepth';
 

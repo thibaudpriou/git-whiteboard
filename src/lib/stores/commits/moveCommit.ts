@@ -1,5 +1,5 @@
 import { getObjectProperty, getAllFirstChildren } from '$lib/utils';
-import type { UpdateFn, Commit, CommitsStore } from '../../../types';
+import type { UpdateFn, Commit, CommitsStore } from '$types';
 
 export const moveCommit = (
 	update: UpdateFn<CommitsStore>,

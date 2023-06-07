@@ -1,6 +1,6 @@
 import { ActionType, CameraMotion } from '$lib/constants';
 
-import type { Pos3D } from '../../types';
+import type { Pos3D } from '$types';
 
 const getTranslationVector = (motion: CameraMotion): Pos3D => {
 	const motionless = { x: 0, y: 0, z: 0 };

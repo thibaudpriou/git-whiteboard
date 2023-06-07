@@ -1,7 +1,7 @@
 <script lang="ts">
 	import CommitGraphic from '$lib/components/CommitGraphic.svelte';
 	import CommitLinkGraphic from '$lib/components/CommitLinkGraphic.svelte';
-	import type { Commit, Pos } from '../types';
+	import type { Commit, Pos } from '$types';
 
 	import LabelInput from '$lib/components/LabelInput.svelte';
 	import { commits, commitList } from '$lib/stores';

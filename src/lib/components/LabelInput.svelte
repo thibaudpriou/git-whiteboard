@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
-	import type { Pos } from '../../types';
+	import type { Pos } from '$types';
 
 	export let label = '';
 	export let pos: Pos;

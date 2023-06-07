@@ -1,4 +1,4 @@
-import type { CommitsStore, UpdateFn } from '../../../types';
+import type { CommitsStore, UpdateFn } from '$types';
 import { beautifyCommitsPositions } from '$lib/utils';
 
 export const beautify = (update: UpdateFn<CommitsStore>) => {

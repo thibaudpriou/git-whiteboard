@@ -1,4 +1,4 @@
-import type { CommitWithParents } from '../../types';
+import type { CommitWithParents } from '$types';
 import { commits } from './commits';
 import { derived } from 'svelte/store';
 import { getObjectProperty } from '$lib/utils';

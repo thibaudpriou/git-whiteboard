@@ -1,4 +1,4 @@
-import type { Commit } from '../../types';
+import type { Commit } from '$types';
 
 /** map of commits by their resp. depth (pos.y) */
 export type DepthMap = Record<number, Commit['id'][]>;

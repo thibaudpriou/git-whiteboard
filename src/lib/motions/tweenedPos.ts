@@ -1,4 +1,4 @@
-import type { Pos } from '../../types';
+import type { Pos } from '$types';
 import { quartInOut } from 'svelte/easing';
 import { tweened } from 'svelte/motion';
 

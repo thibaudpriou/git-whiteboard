@@ -1,4 +1,4 @@
-import type { Pos, Pos3D } from '../../types';
+import type { Pos, Pos3D } from '$types';
 
 type Win = Pick<Window, 'innerHeight' | 'innerWidth'>;
 

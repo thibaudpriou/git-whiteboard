@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Pos } from '../../types';
+	import type { Pos } from '$types';
 	import { tweenedPos } from '$lib/motions';
 
 	export let startPoint: Pos;

@@ -1,4 +1,4 @@
-import type { Commit, CommitsStore, UpdateFn } from '../../../types';
+import type { Commit, CommitsStore, UpdateFn } from '$types';
 import { getObjectProperty, removeChildFromChildrenMap, removeParentsFromIdMap } from '$lib/utils';
 
 export const removeParents = (update: UpdateFn<CommitsStore>, id: Commit['id']) => {

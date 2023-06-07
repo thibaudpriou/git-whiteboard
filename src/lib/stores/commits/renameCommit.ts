@@ -1,5 +1,5 @@
 import { getObjectProperty } from '$lib/utils';
-import type { UpdateFn, Commit, CommitsStore } from '../../../types';
+import type { UpdateFn, Commit, CommitsStore } from '$types';
 
 export const renameCommit = (update: UpdateFn<CommitsStore>, commit: Commit, name: string) => {
 	return update((s) => {

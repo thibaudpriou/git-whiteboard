@@ -1,5 +1,5 @@
 import { getObjectProperty } from '$lib/utils';
-import type { UpdateFn, Commit, CommitsStore } from '../../../types';
+import type { UpdateFn, Commit, CommitsStore } from '$types';
 
 export const deleteCommit = (update: UpdateFn<CommitsStore>, id: Commit['id']) => {
 	return update((s) => {

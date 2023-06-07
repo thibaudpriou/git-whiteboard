@@ -1,6 +1,6 @@
 import { getObjectProperty } from '$lib/utils';
 import { v4 as uuidv4 } from 'uuid';
-import type { UpdateFn, Commit, CommitsStore } from '../../../types';
+import type { UpdateFn, Commit, CommitsStore } from '$types';
 
 export const addCommit = (
 	update: UpdateFn<CommitsStore>,

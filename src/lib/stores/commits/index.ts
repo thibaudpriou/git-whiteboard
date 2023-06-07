@@ -1,4 +1,4 @@
-import type { CommitsStore } from '../../../types';
+import type { CommitsStore } from '$types';
 import { v4 as uuidv4 } from 'uuid';
 import { writable } from 'svelte/store';
 import { addCommit } from './addCommit';

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { tweened } from 'svelte/motion';
 	import { cubicIn } from 'svelte/easing';
-	import type { Pos } from '../../types';
+	import type { Pos } from '$types';
 	import { tweenedPos } from '$lib/motions';
 
 	export let pos: Pos;
