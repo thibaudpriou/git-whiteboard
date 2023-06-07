@@ -20,10 +20,25 @@ To create a production version:
 yarn build
 ```
 
+---
 ## TODO list
 
-- refactor +page.selte view
-- implement a "rebase" action mode
+Graph features:
+
+- implement a real "rebase" action mode
 - implement a "cherry-pick" action mode
+- implement branches
+- merge checks
+- disallow root commit deletion
+
+UX/UI:
+
+- refactor +page.selte view
 - define actions presets to show recurrent Git manipulations: /learn route
 - enhance UX and help text
+
+Technical debt:
+
+- simplify commit.parents: as an array i.o. tuple
+- refactor rebase/unbase (if not yet deleted)
+- unit tests
