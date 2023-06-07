@@ -1,5 +1,4 @@
 import { getObjectProperty } from '$lib/utils';
-import { v4 as uuidv4 } from 'uuid';
 import type { UpdateFn, Commit, CommitsStore } from '$types';
 
 export const addCommit = (
@@ -13,7 +12,7 @@ export const addCommit = (
 
 		if (doesPosExists) return s;
 
-		const id = uuidv4();
+		const id = s.lastCommitId + 1;
 
 		const idMap = {
 			...s.idMap,
@@ -35,7 +34,8 @@ export const addCommit = (
 		return {
 			...s,
 			idMap,
-			childrenMap: childrenMap ?? s.childrenMap
+			childrenMap: childrenMap ?? s.childrenMap,
+			lastCommitId: id
 		};
 	});
 };

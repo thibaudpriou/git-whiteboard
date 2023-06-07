@@ -1,7 +1,7 @@
 import type { Pos } from "./pos";
 
 export type Commit = {
-	id: string;
+	id: number;
 	pos: Pos;
 	name?: string;
 	parents: [Commit['id']] | [Commit['id'], Commit['id']] | null;

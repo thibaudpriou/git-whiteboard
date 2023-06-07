@@ -106,9 +106,9 @@
 
 			const newCommit = { pos, parents } as Commit;
 
-			const prevLastCommitId = Object.keys($commits.idMap).at(-1)!; // last added key
+			const prevLastCommitId = $commits.lastCommitId;
 			commits.addCommit(newCommit);
-			const lastCommitId = Object.keys($commits.idMap).at(-1)!; // last added key
+			const lastCommitId = $commits.lastCommitId;
 
 			if (prevLastCommitId !== lastCommitId) {
 				// a new commit was created
