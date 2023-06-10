@@ -9,8 +9,8 @@ export const removeParents = (update: UpdateFn<CommitsStore>, id: Commit['id']) 
 		const idMap = removeParentsFromIdMap(s.idMap, found.id);
 		const childrenMap = removeChildFromChildrenMap(s.childrenMap, found.id, found.parents);
 
-		// TODO remove children's links
-		// TODO setTimeout: recreate children's links
+		// TODO remove children's links?
+		// TODO setTimeout: recreate children's links?
 
 		return {
 			...s,

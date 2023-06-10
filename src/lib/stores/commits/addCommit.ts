@@ -1,5 +1,6 @@
+import type { Commit, CommitsStore, UpdateFn } from '$types';
+
 import { getObjectProperty } from '$lib/utils';
-import type { UpdateFn, Commit, CommitsStore } from '$types';
 
 export const addCommit = (
 	update: UpdateFn<CommitsStore>,
@@ -22,7 +23,7 @@ export const addCommit = (
 			}
 		};
 
-		const childrenMap = commit.parents?.reduce((map, parentId, idx) => {
+		const childrenMap = commit.parents.reduce((map, parentId, idx) => {
 			const pChildren = getObjectProperty(map, parentId) ?? [];
 
 			return {
@@ -34,7 +35,7 @@ export const addCommit = (
 		return {
 			...s,
 			idMap,
-			childrenMap: childrenMap ?? s.childrenMap,
+			childrenMap,
 			lastCommitId: id
 		};
 	});

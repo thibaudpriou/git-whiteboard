@@ -1,5 +1,6 @@
+import type { Commit, CommitsStore, UpdateFn } from '$types';
+
 import { getObjectProperty } from '$lib/utils';
-import type { UpdateFn, Commit, CommitsStore } from '$types';
 
 export const setParent = (
 	update: UpdateFn<CommitsStore>,
@@ -19,7 +20,7 @@ export const setParent = (
 		};
 
 		const childrenMap = { ...s.childrenMap };
-		commit.parents?.forEach((p) => {
+		commit.parents.forEach((p) => {
 			const parent = getObjectProperty(childrenMap, id);
 			if (!parent) throw new Error('parent not found in children map');
 

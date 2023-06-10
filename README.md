@@ -39,6 +39,5 @@ UX/UI:
 
 Technical debt:
 
-- simplify commit.parents: as an array i.o. tuple
 - refactor rebase/unbase (if not yet deleted)
 - unit tests

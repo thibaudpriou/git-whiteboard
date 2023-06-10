@@ -1,5 +1,6 @@
+import type { Commit, CommitsStore, UpdateFn } from '$types';
+
 import { getObjectProperty } from '$lib/utils';
-import type { UpdateFn, Commit, CommitsStore } from '$types';
 
 export const deleteCommit = (update: UpdateFn<CommitsStore>, id: Commit['id']) => {
 	return update((s) => {
@@ -12,7 +13,7 @@ export const deleteCommit = (update: UpdateFn<CommitsStore>, id: Commit['id']) =
 		delete idMap[id];
 
 		// del parent->commit
-		commit?.parents?.forEach((p) => {
+		commit?.parents.forEach((p) => {
 			const parentChildren = getObjectProperty(childrenMap, p);
 			if (!parentChildren) return;
 

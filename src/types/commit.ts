@@ -4,9 +4,9 @@ export type Commit = {
 	id: number;
 	pos: Pos;
 	name?: string;
-	parents: [Commit['id']] | [Commit['id'], Commit['id']] | null;
+	parents: Commit['id'][];
 };
 
 export type CommitWithParents = Commit & {
-	parentsCommits: [Commit] | [Commit, Commit] | null;
+	parentsCommits: Commit[];
 };

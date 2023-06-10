@@ -14,7 +14,7 @@ export const removeParentsFromIdMap = (idMap: CommitMap, id: Commit['id']) => {
 		...idMap,
 		[id]: {
 			...idMap[id],
-			parents: null
+			parents: []
 		}
 	};
 };

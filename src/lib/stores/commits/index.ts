@@ -1,5 +1,4 @@
 import type { CommitsStore } from '$types';
-import { writable } from 'svelte/store';
 import { addCommit } from './addCommit';
 import { beautify } from './beautify';
 import { deleteCommit } from './deleteCommit';
@@ -7,6 +6,7 @@ import { moveCommit } from './moveCommit';
 import { removeParents } from './removeParents';
 import { renameCommit } from './renameCommit';
 import { setParent } from './setParent';
+import { writable } from 'svelte/store';
 
 const createCommitsStore = () => {
 	const { subscribe, update } = writable<CommitsStore>({
@@ -15,7 +15,7 @@ const createCommitsStore = () => {
 				id: 0,
 				pos: { x: 0, y: 0 },
 				name: 'Root',
-				parents: null
+				parents: []
 			}
 		},
 		childrenMap: {

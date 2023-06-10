@@ -9,7 +9,7 @@ import { type DepthMap, groupByDepth } from './groupByDepth';
  * @returns
  */
 const getFirstParent = (commitsById: CommitMap, c: Commit): Commit | undefined => {
-	const pId = c.parents?.at(0);
+	const pId = c.parents.at(0);
 	if (!pId) return undefined;
 
 	return commitsById[pId];
@@ -88,8 +88,8 @@ const fixCommitsOrder = (commitMap: CommitMap, depthMap: DepthMap, depth = 0): C
 		const c1 = commitMap[id1];
 		const c2 = commitMap[id2];
 
-		const idP1 = c1.parents?.at(0);
-		const idP2 = c2.parents?.at(0);
+		const idP1 = c1.parents.at(0);
+		const idP2 = c2.parents.at(0);
 		if (!idP1 || !idP2) return 0; // shouldn't happen as root is by itself on its depth
 		const p1 = commitMap[idP1];
 		const p2 = commitMap[idP2];
@@ -141,7 +141,7 @@ const fixCommitsOrder = (commitMap: CommitMap, depthMap: DepthMap, depth = 0): C
  * @returns a new map
  */
 export const beautifyCommitsPositions = (idMap: CommitMap, childrenMap: ChildrenMap): CommitMap => {
-	const root = Object.values(idMap).find((c) => c.parents === null);
+	const root = Object.values(idMap).find((c) => c.parents.length === 0);
 	if (!root) return idMap; // shouldn't happen
 
 	// reset pos

@@ -7,12 +7,12 @@ export const commitList = derived(commits, ($map) => {
     const commits = Object.values($map.idMap)
 
     const withParents =  commits.map(c => {
-        const parentsCommits = c.parents?.map(p => {
+        const parentsCommits = c.parents.map(p => {
             const parent = getObjectProperty($map.idMap, p)
             if (!parent) throw new Error('parent not found: ' + p)
             
             return parent
-        })  ?? null
+        })
 
         return {
             ...c,
