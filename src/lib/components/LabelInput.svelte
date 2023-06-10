@@ -7,7 +7,8 @@
 
 	const dispatch = createEventDispatcher();
 	const handleSubmit = () => {
-		dispatch('submit', label);
+		const detail = { label };
+		dispatch('submit', detail);
 	};
 </script>
 

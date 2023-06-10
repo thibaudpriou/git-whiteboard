@@ -9,7 +9,7 @@ type Win = Pick<Window, 'innerHeight' | 'innerWidth'>;
  * @param camera
  * @returns
  */
-export const compteGridSize = (maxSize: number, camera: Pos3D) => {
+export const computeGridSize = (maxSize: number, camera: Pos3D) => {
 	return (maxSize * 1) / camera.z;
 };
 

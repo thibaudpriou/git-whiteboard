@@ -1,15 +1,9 @@
 <script lang="ts">
-	import CommitGraphic from '$lib/components/CommitGraphic.svelte';
-	import CommitLinkGraphic from '$lib/components/CommitLinkGraphic.svelte';
 	import type { Commit, Pos } from '$types';
 
-	import LabelInput from '$lib/components/LabelInput.svelte';
 	import { commits, commitList } from '$lib/stores';
 	import {
-		compteGridSize,
-		getGridFromPosition,
 		getObjectProperty,
-		getPositionFromGrid,
 		isAllowedAction,
 		keyActionToCameraMotion,
 		moveCamera,
@@ -17,33 +11,23 @@
 	} from '$lib/utils';
 	import { ActionType } from '$lib/constants';
 	import ActionBanner from '$lib/components/ActionBanner.svelte';
+	import Whiteboard from '$lib/components/Whiteboard.svelte';
 
 	let innerHeight = 0,
 		innerWidth = 0;
 
 	let camera = { x: 0, y: 2, z: 2 };
 
-	let gridSize: number;
-	let grid2pos: (p: Pos) => Pos;
-	let pos2grid: (p: Pos) => Pos;
-	$: {
-		const win = { innerHeight, innerWidth };
-		gridSize = compteGridSize(100, camera);
-		grid2pos = getPositionFromGrid.bind(null, win, camera, gridSize);
-		pos2grid = getGridFromPosition.bind(null, win, camera, gridSize);
-	}
-
 	let commitsIdsToLabel: Commit['id'][] = [];
 	const displayLabelInputs = (id: Commit['id'][]) => {
 		commitsIdsToLabel = id;
 	};
 
-	const handleLabelSubmit = (commit: Commit, ev: CustomEvent<string>) => {
-		if (!commit) return;
-
-		commits.renameCommit(commit, ev.detail);
+	const handleLabelSubmit = (ev: CustomEvent<{label: string, commit: Commit}>) => {
+		const {commit, label} = ev.detail
+		commits.renameCommit(commit, label);
 		commitsIdsToLabel = removeArrayEl(commitsIdsToLabel, commit.id);
-		selectedCommitsIds = removeArrayEl(selectedCommitsIds, commit.id);
+		selectedCommitIds = removeArrayEl(selectedCommitIds, commit.id);
 	};
 
 	let editMode: ActionType | undefined;
@@ -53,7 +37,7 @@
 		const { key, shiftKey } = ev;
 
 		if (ActionType.CANCEL === key) {
-			selectedCommitsIds = [];
+			selectedCommitIds = [];
 			commitsIdsToLabel = [];
 			editMode = undefined;
 			return;
@@ -81,7 +65,7 @@
 
 		if (editMode === key) {
 			// reset
-			selectedCommitsIds = [];
+			selectedCommitIds = [];
 			editMode = undefined;
 			return;
 		}
@@ -90,18 +74,17 @@
 
 		// ? TODO reset selection for every mode changes
 		if (ActionType.RENAME === key) {
-			selectedCommitsIds = [];
+			selectedCommitIds = [];
 		}
 	};
 
-	$: handleSVGClick = (ev: MouseEvent) => {
+	$: handleBackgoundClick = (ev: CustomEvent<{pos: Pos, gridPos: Pos}>) => {
 		if (editMode === undefined) return;
 
-		const { clientX: x, clientY: y } = ev;
-		const pos = pos2grid({ x, y });
+		const pos = ev.detail.gridPos;
 
 		if (ActionType.COMMIT === editMode) {
-			const parents = selectedCommitsIds.slice(0, 2);
+			const parents = selectedCommitIds.slice(0, 2);
 			if (!parents.length) return;
 
 			const newCommit = { pos, parents } as Commit;
@@ -112,21 +95,22 @@
 
 			if (prevLastCommitId !== lastCommitId) {
 				// a new commit was created
-				selectedCommitsIds = [lastCommitId]; // to chain creation
+				selectedCommitIds = [lastCommitId]; // to chain creation
 			}
 			return;
 		}
 
 		if (ActionType.POSITION === editMode) {
-			const toMoveId = selectedCommitsIds.at(0);
+			const toMoveId = selectedCommitIds.at(0);
 			if (!toMoveId) return;
 
 			commits.moveCommit(toMoveId, pos);
 		}
 	};
 
-	let selectedCommitsIds: Commit['id'][] = [];
-	const handleCommitClick = (clicked: Commit) => {
+	let selectedCommitIds: Commit['id'][] = [];
+	const handleCommitClick = (ev: CustomEvent<{commit: Commit}>) => {
+		const clicked = ev.detail.commit
 		if (ActionType.DELETE === editMode) {
 			return commits.delete(clicked.id);
 		}
@@ -135,29 +119,29 @@
 			return commits.removeParents(clicked.id);
 		}
 
-		if (ActionType.REBASE === editMode && selectedCommitsIds.length === 1) {
+		if (ActionType.REBASE === editMode && selectedCommitIds.length === 1) {
 			// TODO perform a real rebase (select 2 or 3 commits, and checks that it's possible, with a nice animation)
-			return commits.setParent(selectedCommitsIds[0], clicked.id);
+			return commits.setParent(selectedCommitIds[0], clicked.id);
 		}
 
 		if (ActionType.POSITION === editMode) {
-			selectedCommitsIds = [clicked.id];
+			selectedCommitIds = [clicked.id];
 			return;
 		}
 
-		if (ActionType.COMMIT === editMode && selectedCommitsIds.length >= 2) {
+		if (ActionType.COMMIT === editMode && selectedCommitIds.length >= 2) {
 			return;
 		}
 
-		const newSelectedCommits = selectedCommitsIds.filter((id) => id !== clicked.id);
-		if (selectedCommitsIds.length === newSelectedCommits.length) {
+		const newSelectedCommits = selectedCommitIds.filter((id) => id !== clicked.id);
+		if (selectedCommitIds.length === newSelectedCommits.length) {
 			// not already selected
 			newSelectedCommits.push(clicked.id);
 		}
-		selectedCommitsIds = newSelectedCommits;
+		selectedCommitIds = newSelectedCommits;
 
 		if (ActionType.RENAME === editMode) {
-			displayLabelInputs(selectedCommitsIds);
+			displayLabelInputs(selectedCommitIds);
 		}
 	};
 
@@ -173,30 +157,18 @@
 </span>
 
 {#if innerWidth && innerHeight}
-	<!-- svelte-ignore a11y-click-events-have-key-events -->
-	<svg width={innerWidth} height={innerHeight} on:click={handleSVGClick}>
-		<!-- display links underneath commits  -->
-		{#each $commitList as commit (commit.id)}
-			{#each commit.parentsCommits ?? [] as parent}
-				<CommitLinkGraphic startPoint={grid2pos(parent.pos)} endPoint={grid2pos(commit.pos)} />
-			{/each}
-		{/each}
-
-		{#each $commitList as commit (commit.id)}
-			<CommitGraphic
-				pos={grid2pos(commit.pos)}
-				label={commit.name}
-				radius={gridSize / 4}
-				on:click={() => handleCommitClick(commit)}
-				selected={selectedCommitsIds.some((id) => id === commit.id)}
-			/>
-		{/each}
-	</svg>
+	<Whiteboard
+		{camera}
+		width={innerWidth}
+		height={innerHeight}
+		commits={$commitList}
+		{commitsToLabel}
+		selectedCommitIds={selectedCommitIds}
+		on:backgound-click={handleBackgoundClick}
+		on:commit-click={handleCommitClick}
+		on:label-submit={handleLabelSubmit}
+	/>
 {/if}
-
-{#each commitsToLabel as c}
-	<LabelInput label={c.name} pos={grid2pos(c.pos)} on:submit={(e) => handleLabelSubmit(c, e)} />
-{/each}
 
 <style>
 	.mode-info {

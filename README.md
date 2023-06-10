@@ -33,7 +33,6 @@ Graph features:
 
 UX/UI:
 
-- refactor +page.selte view
 - define actions presets to show recurrent Git manipulations: /learn route
 - enhance UX and help text
 
