@@ -1,6 +1,32 @@
-import type { Commit, CommitsStore, UpdateFn } from '$types';
+import type { Commit, CommitMap, CommitsStore, UpdateFn } from '$types';
+import { getAllParents, getObjectProperty } from '$lib/utils';
 
-import { getObjectProperty } from '$lib/utils';
+const isMergeCommit = (c: {
+	parents: Commit['id'][];
+}): c is { parents: [Commit['id'], Commit['id']] } => {
+	return c.parents.length === 2;
+};
+
+const canCreateMergeCommit = (idMap: CommitMap, commit: Pick<Commit, 'pos' | 'parents'>): boolean => {
+	const m1 = commit.parents[0];
+	const m2 = commit.parents[1];
+	const firstCommits = getAllParents(idMap, [m1]);
+
+	const hasDiff = !firstCommits.includes(m2);
+	return hasDiff;
+};
+
+const canCreateCommit = (idMap: CommitMap, commit: Pick<Commit, 'pos' | 'parents'>): boolean => {
+	if (isMergeCommit(commit) && !canCreateMergeCommit(idMap, commit)) {
+		return false;
+	}
+
+	const doesPosExists = Object.values(idMap).some(
+		(c) => c.pos.x === commit.pos.x && c.pos.y === commit.pos.y
+	);
+
+	return !doesPosExists;
+};
 
 /**
  * Add a new commit to store
@@ -13,17 +39,13 @@ export const addCommit = (
 	update: UpdateFn<CommitsStore>,
 	commit: Pick<Commit, 'pos' | 'parents'>
 ): Commit['id'] | undefined => {
-	let newCommitId: Commit['id'] | undefined
+	let newCommitId: Commit['id'] | undefined;
 
 	update((s) => {
-		const doesPosExists = Object.values(s.idMap).some(
-			(c) => c.pos.x === commit.pos.x && c.pos.y === commit.pos.y
-		);
-
-		if (doesPosExists) return s;
+		if (!canCreateCommit(s.idMap, commit)) return s;
 
 		const id = s.lastCommitId + 1;
-		newCommitId = id
+		newCommitId = id;
 
 		const idMap = {
 			...s.idMap,
@@ -50,5 +72,5 @@ export const addCommit = (
 		};
 	});
 
-	return newCommitId
+	return newCommitId;
 };

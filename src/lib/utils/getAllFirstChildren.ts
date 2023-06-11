@@ -9,8 +9,8 @@ const isfirstChild = (c: Child | undefined): c is Child => c?.branch === 0;
  * NOTE: here we only return commits for the first parents (to not include merged ones)
  *
  * @param map
- * @param id
- * @returns an array of id
+ * @param ids
+ * @returns an array of commit ids
  */
 export const getAllFirstChildren = (map: ChildrenMap, ids: Commit['id'][]): Commit['id'][] => {
 	const getChildren = (id: Commit['id']) => getObjectProperty(map, id);
