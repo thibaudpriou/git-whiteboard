@@ -53,6 +53,7 @@
 	}
 
 	.label {
+		user-select: none;
 		fill: black;
 	}
 </style>
