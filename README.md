@@ -28,7 +28,6 @@ Graph features:
 - implement a real "rebase" action mode
 - implement a "cherry-pick" action mode
 - implement branches
-- disallow root commit deletion
 
 UX/UI:
 

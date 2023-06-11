@@ -2,12 +2,19 @@ import type { Commit, CommitsStore, UpdateFn } from '$types';
 
 import { getObjectProperty } from '$lib/utils';
 
+const canDeleteCommit = (commit: Commit): boolean => {
+	if (commit.id === 0) return false; // root commit
+
+	return true;
+};
+
 export const deleteCommit = (update: UpdateFn<CommitsStore>, id: Commit['id']) => {
 	return update((s) => {
 		const idMap = { ...s.idMap };
 		const childrenMap = { ...s.childrenMap };
 
 		const commit = getObjectProperty(idMap, id);
+		if (!commit || !canDeleteCommit(commit)) return s;
 
 		// del commit
 		delete idMap[id];
