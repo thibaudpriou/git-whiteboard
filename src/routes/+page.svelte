@@ -78,7 +78,7 @@
 		}
 	};
 
-	$: handleBackgoundClick = (ev: CustomEvent<{pos: Pos, gridPos: Pos}>) => {
+	const handleBackgoundClick = (ev: CustomEvent<{pos: Pos, gridPos: Pos}>) => {
 		if (editMode === undefined) return;
 
 		const pos = ev.detail.gridPos;
@@ -87,16 +87,12 @@
 			const parents = selectedCommitIds.slice(0, 2);
 			if (!parents.length) return;
 
-			const newCommit = { pos, parents } as Commit;
+			const newCommitId = commits.addCommit({ pos, parents });
 
-			const prevLastCommitId = $commits.lastCommitId;
-			commits.addCommit(newCommit);
-			const lastCommitId = $commits.lastCommitId;
-
-			if (prevLastCommitId !== lastCommitId) {
-				// a new commit was created
-				selectedCommitIds = [lastCommitId]; // to chain creation
+			if (newCommitId) {
+				selectedCommitIds = [newCommitId]; // to chain creation
 			}
+
 			return;
 		}
 
