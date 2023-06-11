@@ -65,12 +65,21 @@
 	</svg>
 
 	{#each commitsToLabel as c}
-		<LabelInput label={c.name} pos={grid2pos(c.pos)} on:submit={(e) => handleLabelSubmit(c, e)} />
+		{@const gridPos = grid2pos(c.pos)}
+		<span class="label-input" style:--x={gridPos.x} style:--y={gridPos.y}>
+			<LabelInput label={c.name} on:submit={(e) => handleLabelSubmit(c, e)} />
+		</span>
 	{/each}
 </div>
 
 <style>
 	.whiteboard {
 		position: relative;
+	}
+
+	.label-input {
+		position: absolute;
+		top: calc(var(--y) * 1px);
+		left: calc(var(--x) * 1px);
 	}
 </style>
