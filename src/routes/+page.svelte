@@ -23,8 +23,8 @@
 		commitsIdsToLabel = id;
 	};
 
-	const handleLabelSubmit = (ev: CustomEvent<{label: string, commit: Commit}>) => {
-		const {commit, label} = ev.detail
+	const handleLabelSubmit = (ev: CustomEvent<{ label: string; commit: Commit }>) => {
+		const { commit, label } = ev.detail;
 		commits.renameCommit(commit, label);
 		commitsIdsToLabel = removeArrayEl(commitsIdsToLabel, commit.id);
 		selectedCommitIds = removeArrayEl(selectedCommitIds, commit.id);
@@ -78,7 +78,7 @@
 		}
 	};
 
-	const handleBackgoundClick = (ev: CustomEvent<{pos: Pos, gridPos: Pos}>) => {
+	const handleBackgoundClick = (ev: CustomEvent<{ pos: Pos; gridPos: Pos }>) => {
 		if (editMode === undefined) return;
 
 		const pos = ev.detail.gridPos;
@@ -105,8 +105,8 @@
 	};
 
 	let selectedCommitIds: Commit['id'][] = [];
-	const handleCommitClick = (ev: CustomEvent<{commit: Commit}>) => {
-		const clicked = ev.detail.commit
+	const handleCommitClick = (ev: CustomEvent<{ commit: Commit; selected: boolean }>) => {
+		const { commit: clicked, selected: clickedIsSelected } = ev.detail;
 		if (ActionType.DELETE === editMode) {
 			return commits.delete(clicked.id);
 		}
@@ -125,7 +125,7 @@
 			return;
 		}
 
-		if (ActionType.COMMIT === editMode && selectedCommitIds.length >= 2) {
+		if (ActionType.COMMIT === editMode && selectedCommitIds.length >= 2 && !clickedIsSelected) {
 			return;
 		}
 
@@ -159,7 +159,7 @@
 		height={innerHeight}
 		commits={$commitList}
 		{commitsToLabel}
-		selectedCommitIds={selectedCommitIds}
+		{selectedCommitIds}
 		on:backgound-click={handleBackgoundClick}
 		on:commit-click={handleCommitClick}
 		on:label-submit={handleLabelSubmit}

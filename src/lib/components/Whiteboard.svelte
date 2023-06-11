@@ -32,8 +32,8 @@
 		dispatch('backgound-click', detail);
 	};
 
-	const handleCommitClick = (commit: Commit) => {
-		const detail = { commit };
+	const handleCommitClick = (commit: Commit, selected: boolean) => {
+		const detail = { commit, selected };
 		dispatch('commit-click', detail);
 	};
 
@@ -54,12 +54,13 @@
 		{/each}
 
 		{#each commits as commit (commit.id)}
+			{@const selected = selectedCommitIds.some((id) => id === commit.id)}
 			<CommitGraphic
 				pos={grid2pos(commit.pos)}
 				label={commit.name}
 				radius={gridSize / 4}
-				on:click={() => handleCommitClick(commit)}
-				selected={selectedCommitIds.some((id) => id === commit.id)}
+				on:click={() => handleCommitClick(commit, selected)}
+				{selected}
 			/>
 		{/each}
 	</svg>
